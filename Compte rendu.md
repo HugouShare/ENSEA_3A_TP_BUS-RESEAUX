@@ -54,6 +54,6 @@ Afin de pouvoir déboguer à l'aide de la fonction printf, nous ajoutons le bout
 Nous testons celle-ci avec un simple Hello world. Tout fonctionne comme il se doit :  
 <img width="421" height="339" alt="image" src="https://github.com/user-attachments/assets/6faafb6c-84e6-41bc-9305-0afb7450d000" />
 
-### Communications I2C  
-Nous testons 
+### Communications I2C avec le BMP280  
+nvois
 
