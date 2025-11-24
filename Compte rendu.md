@@ -47,4 +47,7 @@ Nous configurons maintenant notre carte de développement STM. Il s'agit d'une N
 Voici le pinout de la carte :  
 <img width="486" height="430" alt="image" src="https://github.com/user-attachments/assets/ef70ffe8-98e6-4a36-8700-6dcad772d5dc" />  
 
+Après configuration de la carte NUCLEO, nous avons le fichier .ioc suivant :  
+<img width="626" height="593" alt="image" src="https://github.com/user-attachments/assets/379734e7-69cd-4aee-b1a9-441d4edb5905" />
+
 
