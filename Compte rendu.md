@@ -37,6 +37,7 @@ A partir de la datasheet, nous obtenons alors les informations suivantes :
 - Fonctions permettant le calcul de la température et de la pression compensées, en format entier 32 bits :
   - Nous avons de la page 45 à 46
   - Compensation formula in 32 bit fixed point, avec la fonction BMP280_U32_t(bmp280_compensate_P_int32().
+  - <img width="935" height="610" alt="image" src="https://github.com/user-attachments/assets/06d8ba80-5315-4519-a674-fa952471575e" />
   - <img width="953" height="498" alt="image" src="https://github.com/user-attachments/assets/cc29adfa-8975-487a-b960-b28b5b4f4a08" />
 
 ### Setup du STM32  
