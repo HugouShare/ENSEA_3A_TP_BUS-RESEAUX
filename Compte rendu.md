@@ -35,9 +35,16 @@ A partir de la datasheet, nous obtenons alors les informations suivantes :
   - <img width="1007" height="417" alt="image" src="https://github.com/user-attachments/assets/f1e04610-0a8c-4655-9bdc-58421fed378e" />  
   - Ainsi, les valeurs de calibrations sont contenues dans les registres 0xF7 jusque 0xF9 et se nomme "press"
 - Fonctions permettant le calcul de la température et de la pression compensées, en format entier 32 bits :
-  - Nous avons de la page 45 à 46
-  - Compensation formula in 32 bit fixed point, avec la fonction BMP280_U32_t(bmp280_compensate_P_int32().
+  - Nous les trouvons page 45 et 46 de la datasheet
+  - Les fonctions ont les prototypes suivants :
+    - BMP280_S32_t bmp280_compensate_T_int32(BMP280_S32_t adc_T)
+    - BMP280_U32_t bmp280_compensate_P_int32(BMP280_S32_t adc_P)
   - <img width="935" height="610" alt="image" src="https://github.com/user-attachments/assets/06d8ba80-5315-4519-a674-fa952471575e" />
   - <img width="953" height="498" alt="image" src="https://github.com/user-attachments/assets/cc29adfa-8975-487a-b960-b28b5b4f4a08" />
 
 ### Setup du STM32  
+Nous configurons maintenant notre carte de développement STM. Il s'agit d'une NUCLEO-F446RE.  
+Voici le pinout de la carte :  
+<img width="486" height="430" alt="image" src="https://github.com/user-attachments/assets/ef70ffe8-98e6-4a36-8700-6dcad772d5dc" />  
+
+
