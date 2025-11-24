@@ -36,5 +36,7 @@ A partir de la datasheet, nous obtenons alors les informations suivantes :
   - Ainsi, les valeurs de calibrations sont contenues dans les registres 0xF7 jusque 0xF9 et se nomme "press"
 - Fonctions permettant le calcul de la température et de la pression compensées, en format entier 32 bits :
   - Nous avons de la page 45 à 46
-  - Compensation formula in 32 bit fixed point, avec la fonction BMP280_U32_t(bmp280_compensate_P_int32(). 
+  - Compensation formula in 32 bit fixed point, avec la fonction BMP280_U32_t(bmp280_compensate_P_int32().
+  - <img width="953" height="498" alt="image" src="https://github.com/user-attachments/assets/cc29adfa-8975-487a-b960-b28b5b4f4a08" />
+
 ### Setup du STM32  
