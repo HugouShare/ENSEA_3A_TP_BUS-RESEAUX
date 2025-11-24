@@ -12,4 +12,26 @@ Nous utilisons une communication I2C afin de communiquer avec le capteur BMP280.
 La datasheet du capteur BMP280 a été répertoriée dans le dossier "_Ressources/Datasheets_".  
 A partir de la datasheet, nous obtenons alors les informations suivantes :  
 - Adresses possibles pour ce composant :
-  - nosjdc
+  - Nous la trouvons page 28 de la datasheet
+  - Connecting SDO to GND results in slave address 1110110 (0x76)
+  - Connecting it to VDDIO results in slave address 1110111 (0x77)
+  - ATTENTION : le pin SDO ne peut être laissé flotant sinon l'adresse du device sera non définie
+- Registre et valeur permettant d'identifier ce composant :
+  - Nous la trouvons page 24 de la datasheet
+  - Register 0xD0 “id”
+- Registre et valeur permettant de placer le composant en mode normal :
+  - Nous la trouvons page 26 de la datasheet
+  - Register 0xF5 “config”
+- Registre et valeur contenant l'étalonnage du composant :
+  - Nous la trouvons page 24 de la datasheet
+  - <img width="1012" height="491" alt="image" src="https://github.com/user-attachments/assets/aeae1bc2-6f52-4e1f-8372-a8b8b6ad733a" />  
+  - Ainsi, les valeurs de calibrations sont contenues dans les registres 0xA1 jusque 0x88
+- Registre et valeur contenant la température :
+  - Nous la trouvons page 27 de la datasheet
+  - <img width="1003" height="412" alt="image" src="https://github.com/user-attachments/assets/555e1898-cf1a-4148-b814-3edacf96738e" />  
+  - Ainsi, les valeurs de calibrations sont contenues dans les registres 0xFA jusque 0xFC et se nomme "temp"
+- Registre et valeur contenant la pression :
+  - Nous la trouvons page 26 de la datasheet
+  - <img width="1007" height="417" alt="image" src="https://github.com/user-attachments/assets/f1e04610-0a8c-4655-9bdc-58421fed378e" />  
+  - Ainsi, les valeurs de calibrations sont contenues dans les registres 0xF7 jusque 0xF9 et se nomme "press"
+
