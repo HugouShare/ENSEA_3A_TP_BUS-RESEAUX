@@ -55,5 +55,58 @@ Nous testons celle-ci avec un simple Hello world. Tout fonctionne comme il se do
 <img width="421" height="339" alt="image" src="https://github.com/user-attachments/assets/6faafb6c-84e6-41bc-9305-0afb7450d000" />
 
 ### Communications I2C avec le BMP280  
-nvois
+Afin de communiquer en I2C avec le module BMP280, nous allons principalement utiliser les deux fonctions suivantes :
+- HAL_StatusTypeDef HAL_I2C_Master_Transmit(I2C_HandleTypeDef *hi2c, uint16_t DevAddress, uint8_t *pData, uint16_t Size, uint32_t Timeout)
+- HAL_StatusTypeDef HAL_I2C_Master_Receive(I2C_HandleTypeDef *hi2c, uint16_t DevAddress, uint8_t *pData, uint16_t Size, uint32_t Timeout)
 
+Avec : 
+  - I2C_HandleTypeDef hi2c: structure stockant les informations du contrôleur I²C
+  - uint16_t DevAddress: adresse I³C du périphérique Slave avec lequel on souhaite interagir.
+  - uint8_t *pData: buffer de données
+  - uint16_t Size: taille du buffer de données
+  - uint32_t Timeout: peut prendre la valeur HAL_MAX_DELAY
+
+Ces fonctions vont nous permettre d'accéder directement aux différents registres du module et donc d'écrire ou lire des données depuis les registres du module. 
+A des fins de lisibilité et de clarté de code, nous décidons de créer les fonctions :  
+- HAL_StatusTypeDef BMP280_WriteReg(uint8_t reg, uint8_t value);
+- HAL_StatusTypeDef BMP280_ReadReg(uint8_t reg, uint8_t *value);
+- HAL_StatusTypeDef BMP280_ReadMulti(uint8_t reg, uint8_t *buf, uint16_t len);
+permettant respectivement de :
+- écrire dans un registre nommé _reg_ une valeur _value_
+- lire dans un registre nommé _reg_ une valeur et l'écrire dans la variable nommée _value_
+- lire dans _len_ registres à partir du registre _reg_ des valeurs et les écrire dans le buffer nommé _buf_
+  
+Afin d'écrire dans un registre, il suffit simplement d'utiliser la fonction HAL_I2C_Master_Transmit en précisant :  
+- l'adresse I2C du module auquel on souhaite accéder
+- un buffer de taille 2 contenant respectivement : le registre où l'on veut écrire et la valeur que l'on veut écrire dans ce registre
+Afin de lire dans un registre, il suffit simplement :
+- d'utiliser la fonction HAL_I2C_Master_Transmit en précisant :  
+  - l'adresse I2C du module auquel on souhaite accéder
+  - l'adresse du registre que l'on souhaite lire
+- d'utiliser la fonction HAL_I2C_Master_Receive en précisant :  
+  - un pointeur sur la variable dans laquelle on veut écrire se qui se trouve dans le registre
+
+#### Identification du BMP280  
+Tout d'abord, nous commençons par identifier le module BMP280, c'est-à-dire lire dans son registre ID.  
+Pour cela, nous utilisons les informations de la datasheet et écrivons le code correspondant dans une fonction nommée "_BMP280_Init(void)_".  
+Après exécution de celle-ci, nous obtenons bien un ID de 0x58 cohérent avec ce qui est écrit dans la datasheet.  
+
+#### Configuration du BMP280  
+Suite à cela, nous configurons le module BMP280 afin de spécifier de quelle manière nous voulons utiliser le capteur.  
+Dans notre cas à nous : mode normal, Pressure oversampling x16, Temperature oversampling x2.  
+Nous ajoutons alors à la fonction "_BMP280_Init(void)_" la configuration du capteur.  
+
+#### Récupération de l'étalonnage, de la température et de la pression  
+Afin de récupérer en une fois le contenu des registres d'étalonnages du BMP280, nous écrivons la fonction "_BMP280_Calibration(void)_".  
+Dans cette fonction, nous remplissons tout simplement le buffer "_uint8_t calibration_values [26]_" via l'appel de fonction "_BMP280_ReadMulti(BMP280_CALIBRATION, &calibration_values, 26)_".  
+La fonction _BMP280_ReadMulti_ va alors remplir le buffer _calibration_values_ en commencant à lire au registre _BMP280_CALIBRATION_ (valant 0xA1) et en incrémentant automatiquement l'adresse du registre 26 fois, soit jusqu'à avoir fini de lire dans l'ensemble des registres d'étalonnage du module.  
+
+Ensuite, nous définissons la fonction "_void BMP280_ReadRawData(int32_t *raw_temp, int32_t *raw_press)_", permettant d'obtenir respectivement les valeurs brutes de température et de pression lues par le capteur, sans traitement.  
+Une fois encore, le principe est le même : nous commencons à lire à l'adresse _BMP280_PRESS_MSB_ (valant 0xF7) jusqu'au registre 0xFC, puis nous mettons en forme les données lues dans les variables raw_temp et raw_press, conformément à ce qui est écrit dans la datasheet.  
+
+#### Calcul des températures et des pression compensées  
+Pour finir, nous utilisons les fonctions données dans la datasheet page 45 et 46 afin d'appliquer un traitement sur les valeurs de température et de pression mesurée par le capteur, en vue d'obtenir des valeurs les plus correctes possible.  
+Nous reprenons directement le contenu fournit dans la datasheet.  
+
+Une fois cela fait, nous utilisons la boucle _while(1)_ du fichier "_main.c_" afin d'effectuer des mesures de pression et de température et comparer les valeurs brutes aux valeurs avec traitement.  
+Nous observons que... A CONTINUER !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
