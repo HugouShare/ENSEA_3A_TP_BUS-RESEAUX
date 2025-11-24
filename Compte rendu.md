@@ -34,4 +34,6 @@ A partir de la datasheet, nous obtenons alors les informations suivantes :
   - Nous la trouvons page 26 de la datasheet
   - <img width="1007" height="417" alt="image" src="https://github.com/user-attachments/assets/f1e04610-0a8c-4655-9bdc-58421fed378e" />  
   - Ainsi, les valeurs de calibrations sont contenues dans les registres 0xF7 jusque 0xF9 et se nomme "press"
+- Fonctions permettant le calcul de la température et de la pression compensées, en format entier 32 bits :
 
+### Setup du STM32  
