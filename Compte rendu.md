@@ -24,23 +24,23 @@ A partir de la datasheet, nous obtenons alors les informations suivantes :
   - Register 0xF5 “config”
 - Registre et valeur contenant l'étalonnage du composant :
   - Nous la trouvons page 24 de la datasheet
-  - <img width="1012" height="491" alt="image" src="https://github.com/user-attachments/assets/aeae1bc2-6f52-4e1f-8372-a8b8b6ad733a" />  
+    <img width="1012" height="491" alt="image" src="https://github.com/user-attachments/assets/aeae1bc2-6f52-4e1f-8372-a8b8b6ad733a" />  
   - Ainsi, les valeurs de calibrations sont contenues dans les registres 0xA1 jusque 0x88
 - Registre et valeur contenant la température :
   - Nous la trouvons page 27 de la datasheet
-  - <img width="1003" height="412" alt="image" src="https://github.com/user-attachments/assets/555e1898-cf1a-4148-b814-3edacf96738e" />  
+    <img width="1003" height="412" alt="image" src="https://github.com/user-attachments/assets/555e1898-cf1a-4148-b814-3edacf96738e" />  
   - Ainsi, les valeurs de calibrations sont contenues dans les registres 0xFA jusque 0xFC et se nomme "temp"
 - Registre et valeur contenant la pression :
   - Nous la trouvons page 26 de la datasheet
-  - <img width="1007" height="417" alt="image" src="https://github.com/user-attachments/assets/f1e04610-0a8c-4655-9bdc-58421fed378e" />  
+    <img width="1007" height="417" alt="image" src="https://github.com/user-attachments/assets/f1e04610-0a8c-4655-9bdc-58421fed378e" />  
   - Ainsi, les valeurs de calibrations sont contenues dans les registres 0xF7 jusque 0xF9 et se nomme "press"
 - Fonctions permettant le calcul de la température et de la pression compensées, en format entier 32 bits :
   - Nous les trouvons page 45 et 46 de la datasheet
   - Les fonctions ont les prototypes suivants :
     - BMP280_S32_t bmp280_compensate_T_int32(BMP280_S32_t adc_T)
     - BMP280_U32_t bmp280_compensate_P_int32(BMP280_S32_t adc_P)
-  - <img width="935" height="610" alt="image" src="https://github.com/user-attachments/assets/06d8ba80-5315-4519-a674-fa952471575e" />
-  - <img width="953" height="498" alt="image" src="https://github.com/user-attachments/assets/cc29adfa-8975-487a-b960-b28b5b4f4a08" />
+    <img width="935" height="610" alt="image" src="https://github.com/user-attachments/assets/06d8ba80-5315-4519-a674-fa952471575e" />
+    <img width="953" height="498" alt="image" src="https://github.com/user-attachments/assets/cc29adfa-8975-487a-b960-b28b5b4f4a08" />
 
 ### Setup du STM32  
 Nous configurons maintenant notre carte de développement STM. Il s'agit d'une NUCLEO-F446RE.  
@@ -71,7 +71,8 @@ A des fins de lisibilité et de clarté de code, nous décidons de créer les fo
 - HAL_StatusTypeDef BMP280_WriteReg(uint8_t reg, uint8_t value);
 - HAL_StatusTypeDef BMP280_ReadReg(uint8_t reg, uint8_t *value);
 - HAL_StatusTypeDef BMP280_ReadMulti(uint8_t reg, uint8_t *buf, uint16_t len);
-permettant respectivement de :
+
+Permettant respectivement de :
 - écrire dans un registre nommé _reg_ une valeur _value_
 - lire dans un registre nommé _reg_ une valeur et l'écrire dans la variable nommée _value_
 - lire dans _len_ registres à partir du registre _reg_ des valeurs et les écrire dans le buffer nommé _buf_
@@ -79,6 +80,7 @@ permettant respectivement de :
 Afin d'écrire dans un registre, il suffit simplement d'utiliser la fonction HAL_I2C_Master_Transmit en précisant :  
 - l'adresse I2C du module auquel on souhaite accéder
 - un buffer de taille 2 contenant respectivement : le registre où l'on veut écrire et la valeur que l'on veut écrire dans ce registre
+
 Afin de lire dans un registre, il suffit simplement :
 - d'utiliser la fonction HAL_I2C_Master_Transmit en précisant :  
   - l'adresse I2C du module auquel on souhaite accéder
