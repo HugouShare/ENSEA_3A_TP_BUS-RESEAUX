@@ -131,8 +131,36 @@ Informations saisies lors de la création de l'image via Raspberry Pi Imager :
 
 #### Premier démarrage  
 Nous flashons alors la carte SD avec les configurations faites via Raspberry Pi Imager.  
+La Raspberry a obtenu son adresse IP sur le réseau de la même manière qu’un ordinateur classique : via le protocole DHCP.  
+Son adresse IP correspond à la théorie vue en cours :  
+![OIP NHsl6SOwA1YLv5Rn71-dHwHaFj](https://github.com/user-attachments/assets/d01dba0f-2ff9-4451-8b7e-074d66e4c709)  
+
+Nous nous connectons alors à notre Raspberry PI Zero en suivant le protocole suivant :  
+- ouverture du terminal de cmd Windows
+- ecrire dans le terminal : ssh hugoarthur@192.168.4.207
+- entrer le mdp de session
+Nous obtenons alors l'interface suivante :
+<img width="1184" height="222" alt="image" src="https://github.com/user-attachments/assets/4fa3d9a4-2ad5-4112-aebc-d88fb25c0e67" />  
   
 ### Port série  
 
 #### Loopback  
-![BOARD-Layout-CMPLETE_800x506-768x486](https://github.com/user-attachments/assets/c5023909-3ba7-494d-9369-463907a953ff)
+Dans un premier temps, nous rebouclons la pin RX sur la pin TX.
+![BOARD-Layout-CMPLETE_800x506-768x486](https://github.com/user-attachments/assets/c5023909-3ba7-494d-9369-463907a953ff)  
+
+Nous installons minicom via la commande : 
+_sudo apt update_
+_sudo apt install minicom_  
+
+Suite à cela, nous écrivons dans le terminal de cmd Windows :  
+- sudo minicom -D /dev/ttyS0
+
+Cela nous permet alors de configurer le port série. Nous le configurons de la manière suivante :  
+<img width="892" height="429" alt="image" src="https://github.com/user-attachments/assets/f1b7800b-caa1-465a-a40a-2741d357a99f" />  
+
+
+
+
+
+
+
