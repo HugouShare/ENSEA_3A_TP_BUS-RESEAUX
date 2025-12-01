@@ -6,6 +6,7 @@ Durant ces TPs de bus & réseaux, l'objectif est de mettre en place le système 
 
 ## Mise en place de la partie I2C du système  
 Dans un premier temps, nous allons mettre en place la partie I2C du projet.  
+<img width="714" height="208" alt="image" src="https://github.com/user-attachments/assets/b8640915-dbf7-40d3-b937-7191a3778152" />  
 Nous utilisons une communication I2C afin de communiquer avec le capteur BMP280.  
 
 ### Capteur BMP280  
@@ -111,4 +112,9 @@ Pour finir, nous utilisons les fonctions données dans la datasheet page 45 et 4
 Nous reprenons directement le contenu fournit dans la datasheet.  
 
 Une fois cela fait, nous utilisons la boucle _while(1)_ du fichier "_main.c_" afin d'effectuer des mesures de pression et de température et comparer les valeurs brutes aux valeurs avec traitement.  
-Nous observons que... A CONTINUER !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Nous observons que... A CONTINUER !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
+
+## Mise en place de l'interfaçage STM32-Raspberry  
+Dans un second temps, nous allons mettre en place un interfaçage entre notre carte STM32 et Raspberry.  
+<img width="866" height="479" alt="image" src="https://github.com/user-attachments/assets/4e31f893-ab4f-4cc3-8550-9a39669d01b6" />  
+Nous utiliserons un script Python afin d'interroger la carte STM32 depuis la Raspberry.  
