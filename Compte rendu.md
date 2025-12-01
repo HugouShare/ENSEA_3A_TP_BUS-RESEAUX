@@ -138,7 +138,7 @@ Son adresse IP correspond à la théorie vue en cours :
 Nous nous connectons alors à notre Raspberry PI Zero en suivant le protocole suivant :  
 - ouverture du terminal de cmd Windows
 - ecrire dans le terminal : ssh hugoarthur@192.168.4.207
-- entrer le mdp de session
+- ecrire dans le terminal le mdp : ensea2526  
 Nous obtenons alors l'interface suivante :
 <img width="1184" height="222" alt="image" src="https://github.com/user-attachments/assets/4fa3d9a4-2ad5-4112-aebc-d88fb25c0e67" />  
   
@@ -149,7 +149,7 @@ Dans un premier temps, nous rebouclons la pin RX sur la pin TX.
 ![BOARD-Layout-CMPLETE_800x506-768x486](https://github.com/user-attachments/assets/c5023909-3ba7-494d-9369-463907a953ff)  
 
 Nous installons minicom via la commande : 
-_sudo apt update_
+_sudo apt update_  
 _sudo apt install minicom_  
 
 Suite à cela, nous écrivons dans le terminal de cmd Windows :  
