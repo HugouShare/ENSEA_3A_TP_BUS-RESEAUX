@@ -158,7 +158,8 @@ Suite à cela, nous écrivons dans le terminal de cmd Windows :
 Cela nous permet alors de configurer le port série. Nous le configurons de la manière suivante (en pressant CTRL+A suivi de O) :  
 <img width="892" height="429" alt="image" src="https://github.com/user-attachments/assets/f1b7800b-caa1-465a-a40a-2741d357a99f" />  
 
-
+Nous pouvons effectivement écrire et visualiser les caractères écrits en même temps : 
+<img width="872" height="362" alt="image" src="https://github.com/user-attachments/assets/8d1e3471-f603-4273-9bae-c4aa8c7cd734" />
 
 
 
