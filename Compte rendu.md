@@ -155,7 +155,7 @@ _sudo apt install minicom_
 Suite à cela, nous écrivons dans le terminal de cmd Windows :  
 - sudo minicom -D /dev/ttyS0
 
-Cela nous permet alors de configurer le port série. Nous le configurons de la manière suivante :  
+Cela nous permet alors de configurer le port série. Nous le configurons de la manière suivante (en pressant CTRL+A suivi de O) :  
 <img width="892" height="429" alt="image" src="https://github.com/user-attachments/assets/f1b7800b-caa1-465a-a40a-2741d357a99f" />  
 
 
