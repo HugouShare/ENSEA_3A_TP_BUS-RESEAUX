@@ -118,3 +118,21 @@ Nous observons que... A CONTINUER !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 Dans un second temps, nous allons mettre en place un interfaçage entre notre carte STM32 et Raspberry.  
 <img width="866" height="479" alt="image" src="https://github.com/user-attachments/assets/4e31f893-ab4f-4cc3-8550-9a39669d01b6" />  
 Nous utiliserons un script Python afin d'interroger la carte STM32 depuis la Raspberry.  
+
+### Mise en route du Raspberry PI Zéro  
+
+#### Préparation du Raspberry  
+Informations saisies lors de la création de l'image via Raspberry Pi Imager :  
+- hostname : HugoCFArthurNN
+- nom utilisateur : hugoarthur
+- mdp : ensea2526
+- SSH : C304_DTI_AP
+- mdp : ilovelinux
+
+#### Premier démarrage  
+Nous flashons alors la carte SD avec les configurations faites via Raspberry Pi Imager.  
+  
+### Port série  
+
+#### Loopback  
+![BOARD-Layout-CMPLETE_800x506-768x486](https://github.com/user-attachments/assets/c5023909-3ba7-494d-9369-463907a953ff)
