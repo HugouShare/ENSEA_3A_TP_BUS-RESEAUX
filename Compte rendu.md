@@ -236,9 +236,44 @@ Dans notre premier terminal, nous obtenons alors l'affichage suivant :
 En entrant l'adresse http://192.168.4.207:5000 sur notre navigateur WEB, nous observons alors :  
 <img width="115" height="38" alt="image" src="https://github.com/user-attachments/assets/dc9690a2-e5a1-4b10-b90e-0df84a4dfa25" />  
 
+### Première page REST  
 
+#### Première route  
+Dans un premier temps, nous ajoutons au fichier "_hello.py_" le code suivant :  
+```
+welcome = "Welcome to 3ESE API!"
 
+@app.route('/api/welcome/')
+def api_welcome():
+    return welcome
+    
+@app.route('/api/welcome/<int:index>')
+def api_welcome_index(index):
+    return welcome[index]
+```
 
+Le décorateur @app.route sert à associer une URL (un chemin) à une fonction python. 
+Le rôle du fragment <int:index> permet de capturer un paramètre dans l'URL et de le passer à la fonction.  
+En entrant dans notre navigateur les commandes suivantes, nous obtenons respectivement :  
+```
+http://192.168.4.207:5000/api/welcome/
+```
+<img width="198" height="29" alt="image" src="https://github.com/user-attachments/assets/271ab8ba-e327-451a-856d-dadf99ef7798" />
+```
+http://192.168.4.207:5000/api/welcome/0
+```
+<img width="24" height="22" alt="image" src="https://github.com/user-attachments/assets/345f35a6-1a98-445b-9ad6-a87bcb2f7ea2" />
+```
+http://192.168.4.207:5000/api/welcome/1
+```
+<img width="17" height="16" alt="image" src="https://github.com/user-attachments/assets/2c1526f2-7958-43d3-80eb-7618a401700b" />
+
+REMARQUE : En parallèle des appels faits depuis les navigateurs WEB, nous observons l'affichage des différentes requêtes faites :  
+<img width="1425" height="489" alt="image" src="https://github.com/user-attachments/assets/c9b98e04-a89d-4bdf-9fed-511fe7b68a1e" />
+
+#### Première page REST  
+
+##### Réponse JSON  
 
 
 
