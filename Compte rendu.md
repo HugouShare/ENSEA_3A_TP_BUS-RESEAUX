@@ -258,15 +258,15 @@ En entrant dans notre navigateur les commandes suivantes, nous obtenons respecti
 ```
 http://192.168.4.207:5000/api/welcome/
 ```
-<img width="198" height="29" alt="image" src="https://github.com/user-attachments/assets/271ab8ba-e327-451a-856d-dadf99ef7798" />
+<img width="198" height="29" alt="image" src="https://github.com/user-attachments/assets/271ab8ba-e327-451a-856d-dadf99ef7798" />  
 ```
 http://192.168.4.207:5000/api/welcome/0
 ```
-<img width="24" height="22" alt="image" src="https://github.com/user-attachments/assets/345f35a6-1a98-445b-9ad6-a87bcb2f7ea2" />
+<img width="24" height="22" alt="image" src="https://github.com/user-attachments/assets/345f35a6-1a98-445b-9ad6-a87bcb2f7ea2" />  
 ```
 http://192.168.4.207:5000/api/welcome/1
 ```
-<img width="17" height="16" alt="image" src="https://github.com/user-attachments/assets/2c1526f2-7958-43d3-80eb-7618a401700b" />
+<img width="17" height="16" alt="image" src="https://github.com/user-attachments/assets/2c1526f2-7958-43d3-80eb-7618a401700b" />  
 
 REMARQUE : En parallèle des appels faits depuis les navigateurs WEB, nous observons l'affichage des différentes requêtes faites :  
 <img width="1425" height="489" alt="image" src="https://github.com/user-attachments/assets/c9b98e04-a89d-4bdf-9fed-511fe7b68a1e" />
@@ -274,9 +274,103 @@ REMARQUE : En parallèle des appels faits depuis les navigateurs WEB, nous obser
 #### Première page REST  
 
 ##### Réponse JSON  
+Nous allons maintenant nous interesseer au module JSON.  
+Un module JSON est un composant logiciel (souvent une bibliothèque) qui permet de lire, écrire, analyser et manipuler des données au format JSON (JavaScript Object Notation).  
 
+Afin de générer du JSON, nous utilisons la fonction python _json.dumps()_ en insérant la ligne suivante dans la fonction _api_welcome_index_ :  
+```
+return json.dumps({"index": index, "val": welcome[index]})
+```
+à la place de la ligne :  
+```
+return welcome[index]
+```
 
+Lorsque nous entrons la commande suivante dans notre navigateur :  
+```
+http://192.168.4.207:5000/api/welcome/1
+```
+Nous obtenons le résultat suivant en utilisant les outils de développement (accessible via F12) :  
+<img width="1854" height="877" alt="image" src="https://github.com/user-attachments/assets/e66b8988-9d89-42d2-8a99-ef38575c8d0a" />
+Nous observons donc qu'il s'agit d'un type html et non d'un type JSON.  
 
+##### 1ère solution  
+Nous remplaçons la ligne précédente :  
+```
+return json.dumps({"index": index, "val": welcome[index]})
+```
+Par la ligne suivante :  
+```
+return json.dumps({"index": index, "val": welcome[index]}), {"Content-Type": "application/json"}
+```
+Nous obtenons maintenant le résultat suivant :  
+<img width="1851" height="878" alt="image" src="https://github.com/user-attachments/assets/5433a71f-41ce-4f81-a6b7-021301b00917" />  
+Il s'agit bien d'une réponse JSON !  
 
+##### 2ème solution  
+Nous remplaçons maintenant la ligne :  
+```
+return json.dumps({"index": index, "val": welcome[index]})
+```
+Par la ligne suivante :  
+```
+return jsonify({"index": index, "val": welcome[index]})
+```
+Nous obtenons alors :  
+<img width="1850" height="868" alt="image" src="https://github.com/user-attachments/assets/38b0d41a-0cb1-4e47-b1b7-213a34063a40" />  
+Il s'agit à nouveau bel et bien d'une réponse JSON !  
 
+##### Erreur 404  
+Nous téléchargons d'abord le fichier "_page_not_found.html_" et le téléversons dans le dossier "_templates_".
+Nous ajoutons maitenant dans le fichier "_hello.py_" le code suivant :  
+```
+@app.errorhandler(404)
+def page_not_found(error):
+    return render_template('page_not_found.html'), 404
+```
+Et modifions la fonction  _api_welcome_index_ de manière à générer une erreur 404 si l'index entré n'est pas correct. Voici les modifications apportées :  
+```
+@app.route('/api/welcome/<int:index>')
+def api_welcome_index(index):
+    if (index<0 or index>len(welcome)):
+        abort(404)
+    return jsonify({"index": index, "val": welcome[index]})
+```
 
+### Nouvelles méthodes HTTP  
+
+#### Méthodes POST, PUT, DELETE...  
+
+##### Méthode POST  
+Nous entrons dans notre terminal la ligne suivante :  
+```
+curl -X POST http://192.168.4.207:5000/api/welcome/14
+```
+Nous obtenons alors :  
+<img width="1140" height="141" alt="image" src="https://github.com/user-attachments/assets/69968181-5065-439c-ada1-7148cac06d5f" />
+
+Nous ajoutons à notre fichier "_hello.py_" le code suivant :  
+```
+@app.route('/api/request/', methods=['GET', 'POST'])
+@app.route('/api/request/<path>', methods=['GET','POST'])
+def api_request(path=None):
+    resp = {
+            "method":   request.method,
+            "url" :  request.url,
+            "path" : path,
+            "args": request.args,
+            "headers": dict(request.headers),
+    }
+    if request.method == 'POST':
+        resp["POST"] = {
+                "data" : request.get_json(),
+                }
+    return jsonify(resp)
+```
+
+Suite à cela, nous utilisons l'extension Firefox _RESTED_ afin d'interroger notre serveur.  
+Nous obtenons alors :  
+<img width="1215" height="778" alt="image" src="https://github.com/user-attachments/assets/09a3996a-a649-4acf-a1ca-ac95c899607e" />  
+
+##### API CRUD  
+$$$$$$ A faire $$$$$$  
