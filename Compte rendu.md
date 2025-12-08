@@ -171,6 +171,76 @@ Nous réaliserons cela via Python depuis la Raspberry.
 
 ### Installation du serveur Python  
 
+#### Installation 
+Nous passons l'étape de création d'un utilisateur différent de pi, puisque nous somme déjà logé sous le nom de hugoarthur.  
+<img width="441" height="50" alt="image" src="https://github.com/user-attachments/assets/24b7418c-f2c4-45fa-9f8f-d218a7a6eb17" />  
+
+Nous installons ensuite Python sur la Raspberry via les commandes suivantes :  
+```
+sudo apt update
+sudo apt install python3-pip
+```
+
+Une fois loggé dans notre session et python 3 installé, nous réalisons les opérations suivantes :  
+- 1° : nous créons un répertoire nommé restserver depuis le chemin /home/hugoarthur via la commande :  
+  - ```
+    mkdir restserver
+    ```
+    Nous nous mettons alors dans le répertoire suivant : /home/hugoarthur/restserver
+- 2° : dans le répertoire restserver, nous créons un fichier nommé "_requirement.txt_" via la commande :
+  - ```
+    touch requirement.txt
+    ```
+    Nous obtenons alors un fichier "_requirement.txt_" vierge
+- 3° : nous écrivons dans le fichier "_requirement.txt_" via la commande :
+  - ```
+    nano requirement.txt
+    ```
+    Une fois cette commande exécutée, nous pouvons alors écrire dans le fichier requirement.txt. Nous y écrivons : pyserial et flask.
+- 4° : pour finir, nous installons les modules pyserial et flask via les commandes :
+  - ```
+    sudo apt install python3-flask
+    sudo apt install python3-serial
+    ```
+
+#### Premier fichier WEB  
+Dans le dossier restserver, nous créons un fichier nommé "_hello.py_".  
+Nous y plaçons le code suivant :  
+```
+from flask import Flask
+app = Flask(__name__)
+
+@app.route('/')
+def hello_world():
+    return 'Hello, World!\n'
+```
+
+Une fois cela fait, nous lançons notre serveur WEB via la commande :  
+```
+FLASK_APP=hello.py flask run --debug
+```
+A ce stade, le problème est que le serveur ne tourne qu'en mode loopback sur la Raspberry.  
+Afin de rendre le serveur accessible depuis un navigateur, et en particulier depuis le navigateur de notre ordinateur, nous entrons en plus de la commande précédente la commande suivante :  
+```
+ FLASK_APP=hello.py FLASK_ENV=development flask run --host 0.0.0.0.0
+```
+En plus de cela, nous entrons DANS UN NOUVEAU TERMINAL, la commande suivante :  
+```
+curl http://127.0.0.1:5000
+``` 
+Le serveur devient alors accessible depuis le navigateur de notre ordinateur.  
+
+Dans notre premier terminal, nous obtenons alors l'affichage suivant :  
+<img width="466" height="67" alt="image" src="https://github.com/user-attachments/assets/033812db-e9e5-439a-846d-7862a1f645e4" />  
+
+En entrant l'adresse http://192.168.4.207:5000 sur notre navigateur WEB, nous observons alors :  
+<img width="115" height="38" alt="image" src="https://github.com/user-attachments/assets/dc9690a2-e5a1-4b10-b90e-0df84a4dfa25" />  
+
+
+
+
+
+
 
 
 
