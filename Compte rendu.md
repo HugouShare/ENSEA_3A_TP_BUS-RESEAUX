@@ -1,16 +1,20 @@
 # Compte rendu du TP  
 
 ## Introduction  
+
 Durant ces TPs de bus & réseaux, l'objectif est de mettre en place le système suivant :  
 <img width="1333" height="614" alt="image" src="https://github.com/user-attachments/assets/5432dc45-abcd-4308-863c-21bd4d93261a" />
 
 ## Mise en place de la partie I2C du système  
+
 Dans un premier temps, nous allons mettre en place la partie I2C du projet.  
 <img width="714" height="208" alt="image" src="https://github.com/user-attachments/assets/b8640915-dbf7-40d3-b937-7191a3778152" />  
 Nous utilisons une communication I2C afin de communiquer avec le capteur BMP280.  
 
 ### Capteur BMP280  
+
 La datasheet du capteur BMP280 a été répertoriée dans le dossier "_Ressources/Datasheets_".  
+
 A partir de la datasheet, nous obtenons alors les informations suivantes :  
 - Adresses possibles pour ce composant :
   - Nous la trouvons page 28 de la datasheet
@@ -44,6 +48,7 @@ A partir de la datasheet, nous obtenons alors les informations suivantes :
     <img width="953" height="498" alt="image" src="https://github.com/user-attachments/assets/cc29adfa-8975-487a-b960-b28b5b4f4a08" />
 
 ### Setup du STM32  
+
 Nous configurons maintenant notre carte de développement STM. Il s'agit d'une NUCLEO-F446RE.  
 Voici le pinout de la carte :  
 <img width="486" height="430" alt="image" src="https://github.com/user-attachments/assets/ef70ffe8-98e6-4a36-8700-6dcad772d5dc" />  
@@ -56,23 +61,27 @@ Nous testons celle-ci avec un simple Hello world. Tout fonctionne comme il se do
 <img width="421" height="339" alt="image" src="https://github.com/user-attachments/assets/6faafb6c-84e6-41bc-9305-0afb7450d000" />
 
 ### Communications I2C avec le BMP280  
-Afin de communiquer en I2C avec le module BMP280, nous allons principalement utiliser les deux fonctions suivantes :
-- HAL_StatusTypeDef HAL_I2C_Master_Transmit(I2C_HandleTypeDef *hi2c, uint16_t DevAddress, uint8_t *pData, uint16_t Size, uint32_t Timeout)
-- HAL_StatusTypeDef HAL_I2C_Master_Receive(I2C_HandleTypeDef *hi2c, uint16_t DevAddress, uint8_t *pData, uint16_t Size, uint32_t Timeout)
 
+Afin de communiquer en I2C avec le module BMP280, nous allons principalement utiliser les deux fonctions suivantes :  
+```C
+HAL_StatusTypeDef HAL_I2C_Master_Transmit(I2C_HandleTypeDef *hi2c, uint16_t DevAddress, uint8_t *pData, uint16_t Size, uint32_t Timeout)
+HAL_StatusTypeDef HAL_I2C_Master_Receive(I2C_HandleTypeDef *hi2c, uint16_t DevAddress, uint8_t *pData, uint16_t Size, uint32_t Timeout)
+```
 Avec : 
-  - I2C_HandleTypeDef hi2c: structure stockant les informations du contrôleur I²C
-  - uint16_t DevAddress: adresse I³C du périphérique Slave avec lequel on souhaite interagir.
-  - uint8_t *pData: buffer de données
-  - uint16_t Size: taille du buffer de données
-  - uint32_t Timeout: peut prendre la valeur HAL_MAX_DELAY
+- I2C_HandleTypeDef hi2c : structure stockant les informations du contrôleur I²C
+- uint16_t DevAddress : adresse I³C du périphérique Slave avec lequel on souhaite interagir
+- uint8_t *pData : buffer de données
+- uint16_t Size : taille du buffer de données
+- uint32_t Timeout : peut prendre la valeur HAL_MAX_DELAY
 
-Ces fonctions vont nous permettre d'accéder directement aux différents registres du module et donc d'écrire ou lire des données depuis les registres du module. 
+Ces fonctions vont nous permettre d'accéder directement aux différents registres du module et donc d'écrire ou lire des données depuis les registres du module.  
+
 A des fins de lisibilité et de clarté de code, nous décidons de créer les fonctions :  
-- HAL_StatusTypeDef BMP280_WriteReg(uint8_t reg, uint8_t value);
-- HAL_StatusTypeDef BMP280_ReadReg(uint8_t reg, uint8_t *value);
-- HAL_StatusTypeDef BMP280_ReadMulti(uint8_t reg, uint8_t *buf, uint16_t len);
-
+```C
+HAL_StatusTypeDef BMP280_WriteReg(uint8_t reg, uint8_t value);
+HAL_StatusTypeDef BMP280_ReadReg(uint8_t reg, uint8_t *value);
+HAL_StatusTypeDef BMP280_ReadMulti(uint8_t reg, uint8_t *buf, uint16_t len);
+```
 Permettant respectivement de :
 - écrire dans un registre nommé _reg_ une valeur _value_
 - lire dans un registre nommé _reg_ une valeur et l'écrire dans la variable nommée _value_
@@ -90,16 +99,19 @@ Afin de lire dans un registre, il suffit simplement :
   - un pointeur sur la variable dans laquelle on veut écrire se qui se trouve dans le registre
 
 #### Identification du BMP280  
+
 Tout d'abord, nous commençons par identifier le module BMP280, c'est-à-dire lire dans son registre ID.  
 Pour cela, nous utilisons les informations de la datasheet et écrivons le code correspondant dans une fonction nommée "_BMP280_Init(void)_".  
 Après exécution de celle-ci, nous obtenons bien un ID de 0x58 cohérent avec ce qui est écrit dans la datasheet.  
 
 #### Configuration du BMP280  
+
 Suite à cela, nous configurons le module BMP280 afin de spécifier de quelle manière nous voulons utiliser le capteur.  
 Dans notre cas à nous : mode normal, Pressure oversampling x16, Temperature oversampling x2.  
 Nous ajoutons alors à la fonction "_BMP280_Init(void)_" la configuration du capteur.  
 
 #### Récupération de l'étalonnage, de la température et de la pression  
+
 Afin de récupérer en une fois le contenu des registres d'étalonnages du BMP280, nous écrivons la fonction "_BMP280_Calibration(void)_".  
 Dans cette fonction, nous remplissons tout simplement le buffer "_uint8_t calibration_values [26]_" via l'appel de fonction "_BMP280_ReadMulti(BMP280_CALIBRATION, &calibration_values, 26)_".  
 La fonction _BMP280_ReadMulti_ va alors remplir le buffer _calibration_values_ en commencant à lire au registre _BMP280_CALIBRATION_ (valant 0xA1) et en incrémentant automatiquement l'adresse du registre 26 fois, soit jusqu'à avoir fini de lire dans l'ensemble des registres d'étalonnage du module.  
@@ -108,6 +120,7 @@ Ensuite, nous définissons la fonction "_void BMP280_ReadRawData(int32_t *raw_te
 Une fois encore, le principe est le même : nous commencons à lire à l'adresse _BMP280_PRESS_MSB_ (valant 0xF7) jusqu'au registre 0xFC, puis nous mettons en forme les données lues dans les variables raw_temp et raw_press, conformément à ce qui est écrit dans la datasheet.  
 
 #### Calcul des températures et des pression compensées  
+
 Pour finir, nous utilisons les fonctions données dans la datasheet page 45 et 46 afin d'appliquer un traitement sur les valeurs de température et de pression mesurée par le capteur, en vue d'obtenir des valeurs les plus correctes possible.  
 Nous reprenons directement le contenu fournit dans la datasheet.  
 
@@ -115,6 +128,7 @@ Une fois cela fait, nous utilisons la boucle _while(1)_ du fichier "_main.c_" af
 Nous observons que... A CONTINUER !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
 
 ## Mise en place de l'interfaçage STM32-Raspberry  
+
 Dans un second temps, nous allons mettre en place un interfaçage entre notre carte STM32 et Raspberry.  
 <img width="866" height="479" alt="image" src="https://github.com/user-attachments/assets/4e31f893-ab4f-4cc3-8550-9a39669d01b6" />  
 Nous utiliserons un script Python afin d'interroger la carte STM32 depuis la Raspberry.  
@@ -122,6 +136,7 @@ Nous utiliserons un script Python afin d'interroger la carte STM32 depuis la Ras
 ### Mise en route du Raspberry PI Zéro  
 
 #### Préparation du Raspberry  
+
 Informations saisies lors de la création de l'image via Raspberry Pi Imager :  
 - hostname : HugoCFArthurNN
 - nom utilisateur : hugoarthur
@@ -130,6 +145,7 @@ Informations saisies lors de la création de l'image via Raspberry Pi Imager :
 - mdp : ilovelinux
 
 #### Premier démarrage  
+
 Nous flashons alors la carte SD avec les configurations faites via Raspberry Pi Imager.  
 La Raspberry a obtenu son adresse IP sur le réseau de la même manière qu’un ordinateur classique : via le protocole DHCP.  
 Son adresse IP correspond à la théorie vue en cours :  
@@ -145,6 +161,7 @@ Nous obtenons alors l'interface suivante :
 ### Port série  
 
 #### Loopback  
+
 Dans un premier temps, nous rebouclons la pin RX sur la pin TX.
 ![BOARD-Layout-CMPLETE_800x506-768x486](https://github.com/user-attachments/assets/c5023909-3ba7-494d-9369-463907a953ff)  
 
@@ -165,6 +182,7 @@ En connectant notre sortie RX de notre Rasberry avec la sortie TX du STM32, nous
 <img width="985" height="740" alt="image" src="https://github.com/user-attachments/assets/b76f8cf8-f76b-4bf6-bebf-335ca62c7af7" />  
 
 ## Interface REST  
+
 Nous mettons maintenant en place une interface REST (Representational State Transfer) sur le Raspberry. 
 <img width="524" height="459" alt="image" src="https://github.com/user-attachments/assets/55da32c4-c9f3-41c8-b604-ba4e23a27ff2" />  
 Nous réaliserons cela via Python depuis la Raspberry.  
@@ -172,6 +190,7 @@ Nous réaliserons cela via Python depuis la Raspberry.
 ### Installation du serveur Python  
 
 #### Installation 
+
 Nous passons l'étape de création d'un utilisateur différent de pi, puisque nous somme déjà logé sous le nom de hugoarthur.  
 <img width="441" height="50" alt="image" src="https://github.com/user-attachments/assets/24b7418c-f2c4-45fa-9f8f-d218a7a6eb17" />  
 
@@ -204,6 +223,7 @@ Une fois loggé dans notre session et python 3 installé, nous réalisons les op
     ```
 
 #### Premier fichier WEB  
+
 Dans le dossier restserver, nous créons un fichier nommé "_hello.py_".  
 Nous y plaçons le code suivant :  
 ```
@@ -239,6 +259,7 @@ En entrant l'adresse http://192.168.4.207:5000 sur notre navigateur WEB, nous ob
 ### Première page REST  
 
 #### Première route  
+
 Dans un premier temps, nous ajoutons au fichier "_hello.py_" le code suivant :  
 ```
 welcome = "Welcome to 3ESE API!"
@@ -274,6 +295,7 @@ REMARQUE : En parallèle des appels faits depuis les navigateurs WEB, nous obser
 #### Première page REST  
 
 ##### Réponse JSON  
+
 Nous allons maintenant nous interesseer au module JSON.  
 Un module JSON est un composant logiciel (souvent une bibliothèque) qui permet de lire, écrire, analyser et manipuler des données au format JSON (JavaScript Object Notation).  
 
@@ -295,6 +317,7 @@ Nous obtenons le résultat suivant en utilisant les outils de développement (ac
 Nous observons donc qu'il s'agit d'un type html et non d'un type JSON.  
 
 ##### 1ère solution  
+
 Nous remplaçons la ligne précédente :  
 ```
 return json.dumps({"index": index, "val": welcome[index]})
@@ -308,6 +331,7 @@ Nous obtenons maintenant le résultat suivant :
 Il s'agit bien d'une réponse JSON !  
 
 ##### 2ème solution  
+
 Nous remplaçons maintenant la ligne :  
 ```
 return json.dumps({"index": index, "val": welcome[index]})
@@ -321,6 +345,7 @@ Nous obtenons alors :
 Il s'agit à nouveau bel et bien d'une réponse JSON !  
 
 ##### Erreur 404  
+
 Nous téléchargons d'abord le fichier "_page_not_found.html_" et le téléversons dans le dossier "_templates_".
 Nous ajoutons maitenant dans le fichier "_hello.py_" le code suivant :  
 ```
@@ -342,6 +367,7 @@ def api_welcome_index(index):
 #### Méthodes POST, PUT, DELETE...  
 
 ##### Méthode POST  
+
 Nous entrons dans notre terminal la ligne suivante :  
 ```
 curl -X POST http://192.168.4.207:5000/api/welcome/14
@@ -373,6 +399,7 @@ Nous obtenons alors :
 <img width="1215" height="778" alt="image" src="https://github.com/user-attachments/assets/09a3996a-a649-4acf-a1ca-ac95c899607e" />  
 
 ##### API CRUD  
+
 $$$$$$ A faire $$$$$$  
 
 ## Bus CAN  
@@ -393,8 +420,70 @@ A l'aide du calculateur en ligne fournit dans le sujet nous configurons en cons�
 
 Nous nous intéressons maintenant au pilotage du moteur via bus CAN.  
 
+Notre setup est le suivant :  
+![7cc50a0e-8551-474a-9a90-8a0d9741bd2f~1](https://github.com/user-attachments/assets/bb86aa08-a417-4158-90a8-c812e793cdac)  
+
 Pour ce faire, nous commençons d'abord par initialiser une structure correspondant au header du message TX que nous allons transmettre sur le bus CAN.  
-Nous le configurons :
+Nous le configurons comme suit :  
+```C
+CAN_TxHeaderTypeDef tx_header =
+{
+    .StdId = 0x61,
+    .TransmitGlobalTime = DISABLE,
+    .IDE = CAN_ID_STD,
+    .RTR = CAN_RTR_DATA,
+    .DLC = 1
+};
+``` 
+D'après STM32CubeIDE, nous obtenons les informations suivantes quant à la structure _CAN_TxHeaderTypeDef_ :  
+```C
+typedef struct
+{
+  uint32_t StdId;    /*!< Specifies the standard identifier.
+                          This parameter must be a number between Min_Data = 0 and Max_Data = 0x7FF. */
+
+  uint32_t ExtId;    /*!< Specifies the extended identifier.
+                          This parameter must be a number between Min_Data = 0 and Max_Data = 0x1FFFFFFF. */
+
+  uint32_t IDE;      /*!< Specifies the type of identifier for the message that will be transmitted.
+                          This parameter can be a value of @ref CAN_identifier_type */
+
+  uint32_t RTR;      /*!< Specifies the type of frame for the message that will be transmitted.
+                          This parameter can be a value of @ref CAN_remote_transmission_request */
+
+  uint32_t DLC;      /*!< Specifies the length of the frame that will be transmitted.
+                          This parameter must be a number between Min_Data = 0 and Max_Data = 8. */
+
+  FunctionalState TransmitGlobalTime; /*!< Specifies whether the timestamp counter value captured on start
+                          of frame transmission, is sent in DATA6 and DATA7 replacing pData[6] and pData[7].
+                          @note: Time Triggered Communication Mode must be enabled.
+                          @note: DLC must be programmed as 8 bytes, in order these 2 bytes are sent.
+                          This parameter can be set to ENABLE or DISABLE. */
+
+} CAN_TxHeaderTypeDef;
+```
+Explication de la configuration du driver : 
+- .StdId = 0x61 : correspond à l'ID du moteur pas-à-pas
+- .TransmitGlobalTime = DISABLE : permet de mesurer les temps de réponse du bus CAN. Nous ne l'utilisons pas. Nous le configurons donc à DISABLE
+- .IDE = CAN_ID_STD : permet d'identifier le type d'identifiant du message qui va être transmis. Dans notre cas à nous, il s'agit d'un message standart => CAN_ID_STD
+- .RTR = CAN_RTR_DATA : permet de spécifier le type de trame qui va être transmis via le bus CAN. Dans notre cas : CAN_RTR_DATA (trame avec données payload)
+- .DLC = 1 : permet de spécifier la longueur de la trame que l'on va transmettre. Dans notre cas : 1
+
+Une fois le driver configuré, nous écrivons alors les deux fonctions aux prototypes suivants :  
+```C
+void motor_command_send(int8_t angle_cmd)
+void motor_test_loop(void)
+```
+Permettant respectivement de :  
+- faire tourner le moteur d'_angle_cmd_ par rapport au 0°
+- faire tourner le moteur de +90°, attendre 1s, faire tourner le moteur de -90° et attendre une seconde
+
+Pour tester le bon fonctionnement de notre code, nous ajoutons alors la ligne de code suivante dans le fichier "_main.c_" :  
+```C
+motor_test_loop();
+```
+Nous observons alors que le moteur fonctionne bel et bien comme désiré :  
+$$$$$$$$$$$$$$ METTRE GIF $$$$$$$$$$$$$$$$
 
 
 
