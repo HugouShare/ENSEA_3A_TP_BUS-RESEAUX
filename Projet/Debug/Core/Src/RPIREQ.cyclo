@@ -1,0 +1,5 @@
+../Core/Src/RPIREQ.c:25:6:send_temperature	1
+../Core/Src/RPIREQ.c:32:6:send_pressure	1
+../Core/Src/RPIREQ.c:39:6:send_K	1
+../Core/Src/RPIREQ.c:46:6:send_angle	1
+../Core/Src/RPIREQ.c:53:6:process_command	7
