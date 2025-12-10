@@ -374,3 +374,27 @@ Nous obtenons alors :
 
 ##### API CRUD  
 $$$$$$ A faire $$$$$$  
+
+## Bus CAN  
+
+Notre objectif est maitenant de mettre en place une API Rest et un périphérique sur bus CAN.  
+Nous nous focalisons donc sur la partie système suivante :  
+<img width="682" height="258" alt="image" src="https://github.com/user-attachments/assets/d3ff5e7c-1c91-4d84-ae3c-9c4cc6fd5bc5" />  
+
+Notre STM32L476RG possède un CAN intégré mais nécessite un transceiver afin de faire l'interface entre la STM32 et le bus CAN.  
+Notre modèle est le TJA1050 dont la datasheet se trouve dans le dossier "Ressources".  
+
+Nous commençons par activer le CAN dans le ".ioc". Nous voulons une **vitesse CAN de 500kbit/s PRECISEMENT**.  
+A l'aide du calculateur en ligne fournit dans le sujet nous configurons en conséquent le fichier ".ioc" de la manière suivante :  
+<img width="445" height="195" alt="image" src="https://github.com/user-attachments/assets/3372f05b-60ce-4d72-a2a4-d5e99279fba0" />
+<img width="529" height="494" alt="image" src="https://github.com/user-attachments/assets/6bb014cf-a47e-4d99-a16a-2b76055bf3fa" />  
+
+### Pilotage du moteur  
+
+Nous nous intéressons maintenant au pilotage du moteur via bus CAN.  
+
+Pour ce faire, nous commençons d'abord par initialiser une structure correspondant au header du message TX que nous allons transmettre sur le bus CAN.  
+Nous le configurons :
+
+
+
