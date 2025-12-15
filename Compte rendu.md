@@ -531,6 +531,14 @@ Dans le ```hello.py```, on met en place les commandes API CRUD :
 <img width="990" height="845" alt="image" src="https://github.com/user-attachments/assets/e29c2d20-5167-45bb-b767-ab3d23cb48c0" />
 <img width="992" height="911" alt="image" src="https://github.com/user-attachments/assets/b87afa8e-7033-4949-a758-d90e69a82472" />
 
+##### Nous testons notre POST PUT et DELETE
+Nous écrivons dans le terminal 
+<img width="1337" height="83" alt="image" src="https://github.com/user-attachments/assets/45b5621a-d8f8-41a6-9ac9-11106a66e2ec" />
+
+Résultat sur notre page web : 
+<img width="1265" height="197" alt="image" src="https://github.com/user-attachments/assets/31ad099c-befd-4b3b-8439-7848445d6c86" />
+
+
 
 
 ## Bus CAN  
