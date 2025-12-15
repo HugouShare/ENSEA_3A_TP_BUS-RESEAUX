@@ -178,8 +178,15 @@ Cela nous permet alors de configurer le port série. Nous le configurons de la m
 Nous pouvons effectivement écrire et visualiser les caractères écrits en même temps : 
 <img width="872" height="362" alt="image" src="https://github.com/user-attachments/assets/8d1e3471-f603-4273-9bae-c4aa8c7cd734" />
 
+#### Communication avec la STM32  
+
 En connectant notre sortie RX de notre Rasberry avec la sortie TX du STM32, nous parvenons à lire les valeurs envoyées par notre STM32 : 
 <img width="985" height="740" alt="image" src="https://github.com/user-attachments/assets/b76f8cf8-f76b-4bf6-bebf-335ca62c7af7" />  
+
+### Commande depuis Python
+
+Nous avons installé python3-pip : 
+<img width="733" height="79" alt="image" src="https://github.com/user-attachments/assets/11dce93c-0de9-4ba3-aee9-41c916271788" />
 
 ## Interface REST  
 
