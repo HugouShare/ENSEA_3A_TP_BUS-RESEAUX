@@ -542,6 +542,12 @@ Nous testons notre ```PUT``` dans le terminal, l'objectif est d'insérer ```Lexc
 Résultat sur notre page web : 
 <img width="829" height="226" alt="image" src="https://github.com/user-attachments/assets/24456adf-92c0-4126-bf29-21f34698fd86" />
 
+Nous testons notre ```DELETE``` dans le terminal, On supprime ainsi la lettre à la position ```1```
+<img width="1136" height="52" alt="image" src="https://github.com/user-attachments/assets/d58d6a4c-a752-4ea5-8c9d-5ca6e6f401aa" />
+
+Résultat après 4 suppressions 
+<img width="881" height="239" alt="image" src="https://github.com/user-attachments/assets/cbe6ecf1-dc50-486b-84d9-df25180d2f6b" />
+
 
 
 
