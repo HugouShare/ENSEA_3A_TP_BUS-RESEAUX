@@ -517,7 +517,7 @@ Nous obtenons alors :
 
 ##### API CRUD  
 
-$$$$$$ A faire $$$$$$  
+Dans le hello.py, on met en place les commandes API CRUD
 
 ## Bus CAN  
 
