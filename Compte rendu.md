@@ -530,11 +530,18 @@ Dans le ```hello.py```, on met en place les commandes API CRUD :
 <img width="992" height="911" alt="image" src="https://github.com/user-attachments/assets/b87afa8e-7033-4949-a758-d90e69a82472" />
 
 ##### Nous testons notre POST PUT et DELETE
-Nous écrivons dans le terminal 
+Nous testons notrez ```POST``` dans le terminal 
 <img width="1337" height="83" alt="image" src="https://github.com/user-attachments/assets/45b5621a-d8f8-41a6-9ac9-11106a66e2ec" />
 
 Résultat sur notre page web : 
 <img width="1265" height="197" alt="image" src="https://github.com/user-attachments/assets/31ad099c-befd-4b3b-8439-7848445d6c86" />
+
+Nous testons notre ```PUT``` dans le terminal, l'objectif est d'insérer ```Lexcellence``` à la position ```4```
+<img width="1330" height="84" alt="image" src="https://github.com/user-attachments/assets/da1f5921-6d51-4caa-a18f-41c00feab037" />
+
+Résultat sur notre page web : 
+<img width="829" height="226" alt="image" src="https://github.com/user-attachments/assets/24456adf-92c0-4126-bf29-21f34698fd86" />
+
 
 
 
