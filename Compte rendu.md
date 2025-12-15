@@ -483,7 +483,4 @@ Pour tester le bon fonctionnement de notre code, nous ajoutons alors la ligne de
 motor_test_loop();
 ```
 Nous observons alors que le moteur fonctionne bel et bien comme désiré :  
-$$$$$$$$$$$$$$ METTRE GIF $$$$$$$$$$$$$$$$
-
-
-
+![PXL_20251210_141720348(2)](https://github.com/user-attachments/assets/f8dd9cd3-7fd7-4323-b0ed-a0b7ed6158ce)  
