@@ -5,7 +5,7 @@
  *      Author: hugof
  */
 
-#include "main.h"
+#include "tja1050.h"
 #include "can.h"
 
 CAN_TxHeaderTypeDef tx_header =

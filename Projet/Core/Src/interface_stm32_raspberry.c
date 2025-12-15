@@ -6,8 +6,11 @@
  */
 
 //////////////////////////////////////// INCLUDES
-#include "RPIREQ.h"
+#include "interface_stm32_raspberry.h"
 #include "usart.h"
+#include "string.h"
+#include "stdio.h"
+#include "stdlib.h"
 
 //////////////////////////////////////// DEFINES
 #define RX_BUF_SIZE 32
@@ -50,7 +53,7 @@ void send_angle()
     HAL_UART_Transmit(&huart1, (uint8_t*)msg, 32, HAL_MAX_DELAY);
 }
 
-void process_command()
+void interface_stm32_raspberry_process_command()
 {
     if (!cmd_received) return;
     cmd_received = 0;

@@ -1,5 +1,7 @@
-Core/Src/RPIREQ.o: ../Core/Src/RPIREQ.c ../Core/Inc/RPIREQ.h \
- ../Core/Inc/main.h ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h \
+Core/Src/interface_stm32_raspberry.o: \
+ ../Core/Src/interface_stm32_raspberry.c \
+ ../Core/Inc/interface_stm32_raspberry.h ../Core/Inc/main.h \
+ ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h \
  ../Core/Inc/stm32f4xx_hal_conf.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_def.h \
@@ -29,7 +31,7 @@ Core/Src/RPIREQ.o: ../Core/Src/RPIREQ.c ../Core/Inc/RPIREQ.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr_ex.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h \
  ../Core/Inc/usart.h ../Core/Inc/usart.h
-../Core/Inc/RPIREQ.h:
+../Core/Inc/interface_stm32_raspberry.h:
 ../Core/Inc/main.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h:
 ../Core/Inc/stm32f4xx_hal_conf.h:

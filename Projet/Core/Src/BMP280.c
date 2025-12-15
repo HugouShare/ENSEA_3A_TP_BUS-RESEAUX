@@ -1,146 +1,211 @@
-/*
- * BMP280.c
- *
- *  Created on: Nov 24, 2025
- *      Author: hugof
- */
+#include "bmp280.h"
+#include "usart.h"
+#include <string.h>
+#include <stdio.h>
 
-//////////////////////////////////////// INCLUDES
-#include "BMP280.h"
-#include "i2c.h"
-
-//////////////////////////////////////// PERSONAL FUNCTIONS
-HAL_StatusTypeDef BMP280_WriteReg(uint8_t reg, uint8_t value)
-{
-	uint8_t buf[2];
-	buf[0] = reg;
-	buf[1] = value;
-
-	return HAL_I2C_Master_Transmit(&hi2c1, BMP280_I2C_ADDR, buf, 2, HAL_MAX_DELAY);
-}
-
-HAL_StatusTypeDef BMP280_ReadReg(uint8_t reg, uint8_t *value)
-{
-	// Envoyer l'adresse du registre
-	HAL_StatusTypeDef status = HAL_I2C_Master_Transmit(&hi2c1, BMP280_I2C_ADDR, &reg, 1, HAL_MAX_DELAY);
-	if (status != HAL_OK)
-	{
-		return status;
-	}
-
-	// Lire la donnée
-	return HAL_I2C_Master_Receive(&hi2c1, BMP280_I2C_ADDR, value, 1, HAL_MAX_DELAY);
-}
-
-HAL_StatusTypeDef BMP280_ReadMulti(uint8_t reg, uint8_t *buf, uint16_t len)
-{
-	HAL_StatusTypeDef status;
-
-	// Envoyer l'adresse du registre de départ
-	status = HAL_I2C_Master_Transmit(&hi2c1, BMP280_I2C_ADDR, &reg, 1, HAL_MAX_DELAY);
-	if (status != HAL_OK)
-	{
-		return status;
-	}
-
-	// Lire les octets suivants
-	return HAL_I2C_Master_Receive(&hi2c1, BMP280_I2C_ADDR, buf, len, HAL_MAX_DELAY);
-}
-
-void BMP280_Init(void)
-{
-	uint8_t id;
-
-	// Lecture de l'ID du device (0xD0 → doit retourner 0x58)
-	BMP280_ReadReg(0xD0, &id);
-	if (id != 0x58)
-	{
-		// Capteur non détecté
-		while(1);
-	}
-	printf("l'ID du BMP280 est : %u",id);
-
-	// Configuration du device
-	BMP280_WriteReg(BMP280_CTRL_MEAS, BMP280_CONFIG );
-}
-
-uint8_t calibration_values [26];
-void BMP280_Calibration(void)
-{
-	BMP280_ReadMulti(BMP280_CALIBRATION, calibration_values, 26);
-}
-
-void BMP280_ReadRawData(int32_t *raw_temp, int32_t *raw_press)
-{
-	uint8_t data[6];
-
-	BMP280_ReadMulti(BMP280_PRESS_MSB, data, 6);
-
-	*raw_press = (int32_t)((data[0] << 12) | (data[1] << 4) | (data[2] >> 4));
-	*raw_temp  = (int32_t)((data[3] << 12) | (data[4] << 4) | (data[5] >> 4));
-}
-
-//////////////////////////////////////// DATASHEET FUNCTIONS
+// ---- Variables globales ----
 int32_t t_fine;
 
-int32_t BMP280_compensate_T_int32(int32_t adc_T)
+uint16_t dig_T1;
+int16_t  dig_T2;
+int16_t  dig_T3;
+
+uint16_t dig_P1;
+int16_t  dig_P2;
+int16_t  dig_P3;
+int16_t  dig_P4;
+int16_t  dig_P5;
+int16_t  dig_P6;
+int16_t  dig_P7;
+int16_t  dig_P8;
+int16_t  dig_P9;
+
+extern int cmd_index;
+extern uint8_t uart4_rx;
+extern char command[16];
+
+// ---- Fonctions I2C ----
+HAL_StatusTypeDef BMP280_WriteRegister(I2C_HandleTypeDef *hi2c, uint8_t reg, uint8_t value)
 {
-	/*
-	 * Returns temperature in DegC, resolution is 0.01 DegC. Output value of “5123” equals 51.23 DegC.
-	 * t_fine carries fine temperature as global value
-	 */
+	uint8_t data[2] = {reg, value};
+	return HAL_I2C_Master_Transmit(hi2c, BMP280_I2C_ADDR, data, 2, HAL_MAX_DELAY);
+}
 
-	uint16_t dig_T1 = (uint16_t)((calibration_values[2]<<8)|(calibration_values[1]));
-	int16_t dig_T2 = (int16_t)((calibration_values[4]<<8)|(calibration_values[3]));
-	int16_t dig_T3 = (int16_t)((calibration_values[6]<<8)|(calibration_values[5]));
+HAL_StatusTypeDef BMP280_ReadRegisters(I2C_HandleTypeDef *hi2c, uint8_t reg, uint8_t *buffer, uint16_t length)
+{
+	HAL_StatusTypeDef ret;
 
+	ret = HAL_I2C_Master_Transmit(hi2c, BMP280_I2C_ADDR, &reg, 1, HAL_MAX_DELAY);
+	if (ret != HAL_OK) return ret;
+
+	ret = HAL_I2C_Master_Receive(hi2c, BMP280_I2C_ADDR, buffer, length, HAL_MAX_DELAY);
+	return ret;
+}
+
+// ---- Initialisation ----
+HAL_StatusTypeDef bmp280_init(void)
+{
+	uint8_t id;
+	HAL_StatusTypeDef ret;
+
+	// 1) Lecture de l'ID
+	ret = BMP280_ReadRegisters(&hi2c1, BMP280_REG_ID, &id, 1);
+	if (ret != HAL_OK) {
+		printf("Erreur lecture ID BMP280\r\n");
+		return ret;
+	}
+	printf("BMP280 ID = 0x%02X\r\n", id);
+
+	if (id != 0x58) {
+		printf("ID inattendu, ce n'est peut-être pas un BMP280\r\n");
+		return HAL_ERROR;
+	}
+
+	// 2) Configuration CTRL_MEAS : Temp x2, Press x16, mode normal -> BMP280_Init_Config
+	ret = BMP280_WriteRegister(&hi2c1, BMP280_REG_CTRL_MEAS, BMP280_Init_Config);
+	if (ret != HAL_OK) {
+		printf("Erreur écriture configuration CTRL_MEAS\r\n");
+		return ret;
+	}
+
+	// 3) Vérification écriture
+	uint8_t check;
+	ret = BMP280_ReadRegisters(&hi2c1, BMP280_REG_CTRL_MEAS, &check, 1);
+	if (ret != HAL_OK) {
+		printf("Erreur lecture vérification configuration\r\n");
+		return ret;
+	}
+
+	if (check == BMP280_Init_Config) {
+		printf("Configuration appliquée: CTRL_MEAS = 0x%02X\r\n", check);
+	} else {
+		printf("Configuration incorrecte: lu = 0x%02X\r\n", check);
+	}
+
+	BMP280_ReadCalibration();
+
+	return HAL_OK;
+}
+
+// ---- Lecture des coefficients de calibration ----
+HAL_StatusTypeDef BMP280_ReadCalibration(void)
+{
+	uint8_t buf[24];
+	HAL_StatusTypeDef ret;
+
+	ret = BMP280_ReadRegisters(&hi2c1, BMP280_REG_CALIB_START, buf, 24);
+	if (ret != HAL_OK) return ret;
+
+	dig_T1 = (buf[1] << 8) | buf[0];
+	dig_T2 = (buf[3] << 8) | buf[2];
+	dig_T3 = (buf[5] << 8) | buf[4];
+
+	dig_P1 = (buf[7] << 8) | buf[6];
+	dig_P2 = (buf[9] << 8) | buf[8];
+	dig_P3 = (buf[11] << 8) | buf[10];
+	dig_P4 = (buf[13] << 8) | buf[12];
+	dig_P5 = (buf[15] << 8) | buf[14];
+	dig_P6 = (buf[17] << 8) | buf[16];
+	dig_P7 = (buf[19] << 8) | buf[18];
+	dig_P8 = (buf[21] << 8) | buf[20];
+	dig_P9 = (buf[23] << 8) | buf[22];
+
+	return HAL_OK;
+}
+
+// ---- Lecture RAW ----
+HAL_StatusTypeDef BMP280_ReadRaw(int32_t *raw_temp, int32_t *raw_press)
+{
+	uint8_t buffer[6];
+	HAL_StatusTypeDef ret;
+
+	ret = BMP280_ReadRegisters(&hi2c1, BMP280_REG_PRESS_MSB, buffer, 6);
+	if (ret != HAL_OK) return ret;
+
+	*raw_press = (int32_t)(buffer[0] << 12) | (buffer[1] << 4) | (buffer[2] >> 4);
+	*raw_temp  = (int32_t)(buffer[3] << 12) | (buffer[4] << 4) | (buffer[5] >> 4);
+
+	return HAL_OK;
+}
+
+// ---- Compensation température ----
+int32_t bmp280_compensate_T_int32(int32_t adc_T)
+{
 	int32_t var1, var2, T;
-	var1 = ((((adc_T>>3) - ((int32_t)dig_T1<<1))) * ((int32_t)dig_T2)) >> 11;
-	var2 = (((((adc_T>>4) - ((int32_t)dig_T1)) * ((adc_T>>4) - ((int32_t)dig_T1))) >> 12) * ((int32_t)dig_T3)) >> 14;
+
+	var1 = ((((adc_T >> 3) - ((int32_t)dig_T1 << 1))) * ((int32_t)dig_T2)) >> 11;
+	var2 = (((((adc_T >> 4) - ((int32_t)dig_T1)) *
+			((adc_T >> 4) - ((int32_t)dig_T1))) >> 12) * ((int32_t)dig_T3)) >> 14;
+
 	t_fine = var1 + var2;
-	T = (t_fine * 5 + 128) >> 8;
+	T = (t_fine * 5 + 128) >> 8;   // 0.01 °C
 	return T;
 }
 
-uint32_t BMP280_compensate_P_int32(int32_t adc_P)
+// ---- Compensation pression ----
+uint32_t bmp280_compensate_P_int32(int32_t adc_P)
 {
-	/*
-	 * Returns pressure in Pa as unsigned 32 bit integer. Output value of “96386” equals 96386 Pa = 963.86 hPa
-	 */
-
-	uint16_t dig_P1 = (uint16_t)((calibration_values[8]<<8)|(calibration_values[7]));
-	int16_t dig_P2 = (int16_t)((calibration_values[10]<<8)|(calibration_values[9]));
-	int16_t dig_P3 = (int16_t)((calibration_values[12]<<8)|(calibration_values[11]));
-	int16_t dig_P4 = (int16_t)((calibration_values[14]<<8)|(calibration_values[13]));
-	int16_t dig_P5 = (int16_t)((calibration_values[16]<<8)|(calibration_values[15]));
-	int16_t dig_P6 = (int16_t)((calibration_values[18]<<8)|(calibration_values[17]));
-	int16_t dig_P7 = (int16_t)((calibration_values[20]<<8)|(calibration_values[19]));
-	int16_t dig_P8 = (int16_t)((calibration_values[22]<<8)|(calibration_values[21]));
-	int16_t dig_P9 = (int16_t)((calibration_values[24]<<8)|(calibration_values[23]));
-
 	int32_t var1, var2;
 	uint32_t p;
-	var1 = (((int32_t)t_fine)>>1) - (int32_t)64000;
-	var2 = (((var1>>2) * (var1>>2)) >> 11 ) * ((int32_t)dig_P6);
-	var2 = var2 + ((var1*((int32_t)dig_P5))<<1);
-	var2 = (var2>>2)+(((int32_t)dig_P4)<<16);
-	var1 = (((dig_P3 * (((var1>>2) * (var1>>2)) >> 13 )) >> 3) + ((((int32_t)dig_P2) * var1)>>1))>>18;
-	var1 =((((32768+var1))*((int32_t)dig_P1))>>15);
-	if (var1 == 0)
-	{
-		return 0; // avoid exception caused by division by zero
-	}
-	p = (((uint32_t)(((int32_t)1048576)-adc_P)-(var2>>12)))*3125;
+
+	var1 = ((t_fine >> 1) - (int32_t)64000);
+
+	var2 = (((var1 >> 2) * (var1 >> 2)) >> 11) * ((int32_t)dig_P6);
+	var2 = var2 + ((var1 * ((int32_t)dig_P5)) << 1);
+	var2 = (var2 >> 2) + (((int32_t)dig_P4) << 16);
+
+	var1 = (((dig_P3 * (((var1 >> 2) * (var1 >> 2)) >> 13)) >> 3) +
+			((((int32_t)dig_P2) * var1) >> 1)) >> 18;
+
+	var1 = (((32768 + var1) * ((int32_t)dig_P1)) >> 15);
+	if (var1 == 0) return 0;
+
+	p = ((((uint32_t)1048576 - adc_P) - (var2 >> 12)));
+	p = (p * 3125);
+
 	if (p < 0x80000000)
-	{
 		p = (p << 1) / ((uint32_t)var1);
-	}
 	else
-	{
-		p = (p / (uint32_t)var1) * 2;
-	}
-	var1 = (((int32_t)dig_P9) * ((int32_t)(((p>>3) * (p>>3))>>13)))>>12;
-	var2 = (((int32_t)(p>>2)) * ((int32_t)dig_P8))>>13;
+		p = (p / ((uint32_t)var1)) * 2;
+
+	var1 = (((int32_t)dig_P9) * ((int32_t)(((p >> 3) * (p >> 3)) >> 13))) >> 12;
+	var2 = (((int32_t)(p >> 2)) * ((int32_t)dig_P8)) >> 13;
+
 	p = (uint32_t)((int32_t)p + ((var1 + var2 + dig_P7) >> 4));
-	return p;
+
+	return p; // Pa
+}
+
+// ---- Lecture + compensation unique ----
+HAL_StatusTypeDef BMP280_ReadTempPressInt(int32_t* temperature_raw_100, uint32_t* pressure_raw_100, int32_t* temperature_compensate_100, uint32_t* pressure_compensate_100)
+{
+	int32_t raw_T, raw_P;
+	HAL_StatusTypeDef ret;
+
+	ret = BMP280_ReadRaw(&raw_T, &raw_P);
+	if (ret != HAL_OK) return ret;
+
+	*temperature_raw_100 = raw_T;
+	*pressure_raw_100 = raw_P;
+	*temperature_compensate_100 = bmp280_compensate_T_int32(raw_T);
+	*pressure_compensate_100    = bmp280_compensate_P_int32(raw_P);
+
+	return HAL_OK;
+}
+
+void bmp280_print_temperature_pressure (void)
+{
+	int32_t temp_raw_100;
+	uint32_t press_raw_100;
+	int32_t temp_compensate_100;
+	uint32_t press_compensate_100;
+
+	if (BMP280_ReadTempPressInt(&temp_raw_100, &press_raw_100, &temp_compensate_100, &press_compensate_100) == HAL_OK)
+	{
+		printf("\r\n raw temperature = %ld.%02ld degrés C, compensate temperature = %ld.%02ld degrés C, raw pressure = %lu.%02lu hPa, compensate pressure = %lu.%02lu hPa \r\n",
+				temp_raw_100 / 100, temp_raw_100 % 100,
+				temp_compensate_100 / 100, temp_compensate_100 % 100,
+				press_raw_100 / 100, press_raw_100 % 100,
+				press_compensate_100 / 100, press_compensate_100 % 100);
+	}
 }

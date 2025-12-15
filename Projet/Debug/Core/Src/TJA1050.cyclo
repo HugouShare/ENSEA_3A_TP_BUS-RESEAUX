@@ -1,2 +1,2 @@
-../Core/Src/TJA1050.c:20:6:motor_command_send	2
-../Core/Src/TJA1050.c:36:6:motor_test_loop	2
+../Core/Src/tja1050.c:20:6:motor_command_send	2
+../Core/Src/tja1050.c:36:6:motor_test_loop	2

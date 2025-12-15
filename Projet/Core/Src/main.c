@@ -22,12 +22,12 @@
 #include "i2c.h"
 #include "usart.h"
 #include "gpio.h"
-
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "stdio.h"
-#include "BMP280.h"
-#include "RPIREQ.h"
+#include "bmp280.h"
+#include "interface_stm32_raspberry.h"
+#include "tja1050.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -103,13 +103,18 @@ int main(void)
 	MX_I2C1_Init();
 	MX_USART1_UART_Init();
 	/* USER CODE BEGIN 2 */
+
 	printf("\n\r=========== BUS&RESEAU ===========\n\r");
 
+	// Code MOTEUR pour rotation de +90 et -90 degrés
+	/*
 	motor_test_loop();
+	*/
 
-//	BMP280_Init();
-//
-//	HAL_UART_Receive_IT(&huart1, (uint8_t*)rx_buf, 1);
+	// Code BMP280 pour capture et affichage de température et pression compensées et non compensées
+	bmp280_init();
+	bmp280_print_temperature_pressure();
+
 	/* USER CODE END 2 */
 
 	/* Infinite loop */
@@ -120,15 +125,7 @@ int main(void)
 
 		/* USER CODE BEGIN 3 */
 
-		//		int32_t direct_temperature, compensate_temperature, direct_pressure, compensate_pressure = 0;
-		//		BMP280_ReadRawData(&direct_temperature, &direct_pressure);
-		//		compensate_temperature = BMP280_compensate_T_int32(direct_temperature);
-		//		compensate_pressure = BMP280_compensate_P_int32(direct_pressure);
-		//		printf("\n\r Tdirect : %ld, Tcompensate : %ld, Pdirect : %ld, Pcompensate : %ld \n\r",
-		//				direct_temperature, compensate_temperature, direct_pressure, compensate_pressure);
-		//		HAL_Delay(1000);
-
-		process_command();
+		//interface_stm32_raspberry_process_command();
 
 	}
 	/* USER CODE END 3 */

@@ -1,8 +1,9 @@
-../Core/Src/BMP280.c:13:19:BMP280_WriteReg	1
-../Core/Src/BMP280.c:22:19:BMP280_ReadReg	2
-../Core/Src/BMP280.c:35:19:BMP280_ReadMulti	2
-../Core/Src/BMP280.c:50:6:BMP280_Init	2
-../Core/Src/BMP280.c:68:6:BMP280_Calibration	1
-../Core/Src/BMP280.c:73:6:BMP280_ReadRawData	1
-../Core/Src/BMP280.c:86:9:BMP280_compensate_T_int32	1
-../Core/Src/BMP280.c:105:10:BMP280_compensate_P_int32	3
+../Core/Src/bmp280.c:28:19:BMP280_WriteRegister	1
+../Core/Src/bmp280.c:34:19:BMP280_ReadRegisters	2
+../Core/Src/bmp280.c:46:19:bmp280_init	6
+../Core/Src/bmp280.c:91:19:BMP280_ReadCalibration	2
+../Core/Src/bmp280.c:117:19:BMP280_ReadRaw	2
+../Core/Src/bmp280.c:132:9:bmp280_compensate_T_int32	1
+../Core/Src/bmp280.c:146:10:bmp280_compensate_P_int32	3
+../Core/Src/bmp280.c:180:19:BMP280_ReadTempPressInt	2
+../Core/Src/bmp280.c:196:6:bmp280_print_temperature_pressure	2

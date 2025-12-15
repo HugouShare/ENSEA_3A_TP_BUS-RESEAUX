@@ -1,35 +1,70 @@
 /*
- * BMP280.h
+ * bmp280.h
  *
  *  Created on: Nov 24, 2025
- *      Author: hugof
+ *      Author: hugoc
  */
 
 #ifndef INC_BMP280_H_
 #define INC_BMP280_H_
 
-//////////////////////////////////////// INCLUDES
 #include "main.h"
-#include "stdio.h"
+#include "stm32f4xx_hal.h"
+#include "i2c.h"
+#include <stdio.h>
 
-//////////////////////////////////////// DEFINES
+#define BMP280_REG_ID           0xD0
+#define BMP280_REG_RESET        0xE0
+#define BMP280_REG_STATUS       0xF3
+#define BMP280_REG_CTRL_MEAS    0xF4
+#define BMP280_REG_CONFIG       0xF5
+#define BMP280_REG_PRESS_MSB    0xF7
+#define BMP280_REG_CALIB_START  0x88
+#define BMP280_CALIB_DATA_LEN   24
+
 #define BMP280_I2C_ADDR  (0x77 << 1)
-#define BMP280_ID 0xD0
-#define BMP280_CTRL_MEAS 0xF4
-#define BMP280_CONFIG 0x57 // mode normal, Pressure oversampling x16, Temperature oversampling x2
-#define BMP280_CALIBRATION 0x88
-#define BMP280_PRESS_MSB 0xF7 // from 0xF7 to 0xFC => respectively pressure and temperature data values
 
-//////////////////////////////////////// DATASHEET FUNCTIONS
-int32_t BMP280_compensate_T_int32(int32_t adc_T);
-uint32_t BMP280_compensate_P_int32(int32_t adc_P);
+#define BMP280_Init_temp 0b010 // [7:5]
+#define BMP280_Init_press 0b101 // [4:2]
+#define BMP280_Init_mode 0b11 // [1:0]
 
-//////////////////////////////////////// PERSONAL FUNCTIONS
-HAL_StatusTypeDef BMP280_WriteReg(uint8_t reg, uint8_t value);
-HAL_StatusTypeDef BMP280_ReadReg(uint8_t reg, uint8_t *value);
-HAL_StatusTypeDef BMP280_ReadMulti(uint8_t reg, uint8_t *buf, uint16_t len);
-void BMP280_Init(void);
-void BMP280_Calibration(void);
-void BMP280_ReadRawData(int32_t *raw_temp, int32_t *raw_press);
+#define BMP280_Init_Config \
+    ((BMP280_Init_temp  << 5) | \
+     (BMP280_Init_press << 2) | \
+     (BMP280_Init_mode))
+
+// Coefficients de calibration
+extern uint16_t dig_T1;
+extern int16_t  dig_T2;
+extern int16_t  dig_T3;
+extern uint16_t dig_P1;
+extern int16_t  dig_P2;
+extern int16_t  dig_P3;
+extern int16_t  dig_P4;
+extern int16_t  dig_P5;
+extern int16_t  dig_P6;
+extern int16_t  dig_P7;
+extern int16_t  dig_P8;
+extern int16_t  dig_P9;
+
+// t_fine global pour la pression
+extern int32_t t_fine;
+
+// Fonctions
+HAL_StatusTypeDef bmp280_init(void);
+HAL_StatusTypeDef BMP280_ReadCalibration(void);
+HAL_StatusTypeDef BMP280_WriteRegister(I2C_HandleTypeDef *hi2c, uint8_t reg, uint8_t value);
+HAL_StatusTypeDef BMP280_ReadRegisters(I2C_HandleTypeDef *hi2c, uint8_t reg, uint8_t *buffer, uint16_t length);
+HAL_StatusTypeDef BMP280_ReadRaw(int32_t *raw_temp, int32_t *raw_press);
+
+// Compensation 32 bits
+int32_t bmp280_compensate_T_int32(int32_t adc_T);
+uint32_t bmp280_compensate_P_int32(int32_t adc_P);
+
+// Lecture + compensation en entier
+HAL_StatusTypeDef BMP280_ReadTempPressInt(int32_t* temperature_raw_100, uint32_t* pressure_raw_100, int32_t* temperature_compensate_100, uint32_t* pressure_compensate_100);
+
+// Affichage des valeurs de T et P
+void bmp280_print_temperature_pressure (void);
 
 #endif /* INC_BMP280_H_ */

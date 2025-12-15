@@ -5,8 +5,8 @@
  *      Author: hugof
  */
 
-#ifndef INC_RPIREQ_H_
-#define INC_RPIREQ_H_
+#ifndef INC_INTERFACE_STM32_RASPBERRY_H_
+#define INC_INTERFACE_STM32_RASPBERRY_H_
 
 //////////////////////////////////////// INCLUDES
 #include "main.h"
@@ -17,6 +17,6 @@ void send_temperature();
 void send_pressure();
 void send_K();
 void send_angle();
-void process_command();
+void interface_stm32_raspberry_process_command();
 
-#endif /* INC_RPIREQ_H_ */
+#endif /* INC_INTERFACE_STM32_RASPBERRY_H_ */

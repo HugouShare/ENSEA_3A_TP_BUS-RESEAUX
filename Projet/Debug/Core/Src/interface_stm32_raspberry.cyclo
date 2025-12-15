@@ -1,0 +1,5 @@
+../Core/Src/interface_stm32_raspberry.c:28:6:send_temperature	1
+../Core/Src/interface_stm32_raspberry.c:35:6:send_pressure	1
+../Core/Src/interface_stm32_raspberry.c:42:6:send_K	1
+../Core/Src/interface_stm32_raspberry.c:49:6:send_angle	1
+../Core/Src/interface_stm32_raspberry.c:56:6:interface_stm32_raspberry_process_command	7

@@ -8,6 +8,8 @@
 #ifndef INC_TJA1050_H_
 #define INC_TJA1050_H_
 
+#include "main.h"
+
 void motor_command_send(int8_t angle_cmd);
 void motor_test_loop(void);
 
