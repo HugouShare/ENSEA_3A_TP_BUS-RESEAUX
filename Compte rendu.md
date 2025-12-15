@@ -42,10 +42,55 @@ A partir de la datasheet, nous obtenons alors les informations suivantes :
 - Fonctions permettant le calcul de la température et de la pression compensées, en format entier 32 bits :
   - Nous les trouvons page 45 et 46 de la datasheet
   - Les fonctions ont les prototypes suivants :
-    - BMP280_S32_t bmp280_compensate_T_int32(BMP280_S32_t adc_T)
-    - BMP280_U32_t bmp280_compensate_P_int32(BMP280_S32_t adc_P)
-    <img width="935" height="610" alt="image" src="https://github.com/user-attachments/assets/06d8ba80-5315-4519-a674-fa952471575e" />
-    <img width="953" height="498" alt="image" src="https://github.com/user-attachments/assets/cc29adfa-8975-487a-b960-b28b5b4f4a08" />
+    - ```BMP280_S32_t bmp280_compensate_T_int32(BMP280_S32_t adc_T)```
+    - ```BMP280_U32_t bmp280_compensate_P_int32(BMP280_S32_t adc_P)```
+  - Contenu des fonctions :
+    - ```C
+      // Returns temperature in DegC, resolution is 0.01 DegC. Output value of “5123” equals 51.23 DegC.
+      // t_fine carries fine temperature as global value
+      BMP280_S32_t t_fine;
+      BMP280_S32_t bmp280_compensate_T_int32(BMP280_S32_t adc_T)
+      {
+          BMP280_S32_t var1, var2, T;
+          var1 = ((((adc_T>>3) – ((BMP280_S32_t)dig_T1<<1))) * ((BMP280_S32_t)dig_T2)) >> 11;
+          var2 = (((((adc_T>>4) – ((BMP280_S32_t)dig_T1)) * ((adc_T>>4) – ((BMP280_S32_t)dig_T1))) >> 12) *
+          ((BMP280_S32_t)dig_T3)) >> 14;
+          t_fine = var1 + var2;
+          T = (t_fine * 5 + 128) >> 8;
+          return T;
+      }
+      ```
+    - ```C
+      // Returns pressure in Pa as unsigned 32 bit integer. Output value of “96386” equals 96386 Pa = 963.86 hPa
+      BMP280_U32_t bmp280_compensate_P_int32(BMP280_S32_t adc_P)
+      {
+          BMP280_S32_t var1, var2;
+          BMP280_U32_t p;
+          var1 = (((BMP280_S32_t)t_fine)>>1) – (BMP280_S32_t)64000;
+          var2 = (((var1>>2) * (var1>>2)) >> 11 ) * ((BMP280_S32_t)dig_P6);
+          var2 = var2 + ((var1*((BMP280_S32_t)dig_P5))<<1);
+          var2 = (var2>>2)+(((BMP280_S32_t)dig_P4)<<16);
+          var1 = (((dig_P3 * (((var1>>2) * (var1>>2)) >> 13 )) >> 3) + ((((BMP280_S32_t)dig_P2) * var1)>>1))>>18;
+          var1 =((((32768+var1))*((BMP280_S32_t)dig_P1))>>15);
+          if (var1 == 0)
+          {
+              return 0; // avoid exception caused by division by zero
+          }
+          p = (((BMP280_U32_t)(((BMP280_S32_t)1048576)-adc_P)-(var2>>12)))*3125;
+          if (p < 0x80000000)
+          {
+              p = (p << 1) / ((BMP280_U32_t)var1);
+          }
+          else
+          {
+              p = (p / (BMP280_U32_t)var1) * 2;
+          }
+          var1 = (((BMP280_S32_t)dig_P9) * ((BMP280_S32_t)(((p>>3) * (p>>3))>>13)))>>12;
+          var2 = (((BMP280_S32_t)(p>>2)) * ((BMP280_S32_t)dig_P8))>>13;
+          p = (BMP280_U32_t)((BMP280_S32_t)p + ((var1 + var2 + dig_P7) >> 4));
+          return p;
+      }
+      ```  
 
 ### Setup du STM32  
 
@@ -101,31 +146,66 @@ Afin de lire dans un registre, il suffit simplement :
 #### Identification du BMP280  
 
 Tout d'abord, nous commençons par identifier le module BMP280, c'est-à-dire lire dans son registre ID.  
-Pour cela, nous utilisons les informations de la datasheet et écrivons le code correspondant dans une fonction nommée "_BMP280_Init(void)_".  
+Pour cela, nous utilisons les informations de la datasheet et écrivons le code correspondant dans une fonction nommée ```bmp280_init()```.  
 Après exécution de celle-ci, nous obtenons bien un ID de 0x58 cohérent avec ce qui est écrit dans la datasheet.  
 
 #### Configuration du BMP280  
 
 Suite à cela, nous configurons le module BMP280 afin de spécifier de quelle manière nous voulons utiliser le capteur.  
 Dans notre cas à nous : mode normal, Pressure oversampling x16, Temperature oversampling x2.  
-Nous ajoutons alors à la fonction "_BMP280_Init(void)_" la configuration du capteur.  
+Nous ajoutons alors à la fonction ```bmp280_init()``` la configuration du capteur.  
 
 #### Récupération de l'étalonnage, de la température et de la pression  
 
-Afin de récupérer en une fois le contenu des registres d'étalonnages du BMP280, nous écrivons la fonction "_BMP280_Calibration(void)_".  
-Dans cette fonction, nous remplissons tout simplement le buffer "_uint8_t calibration_values [26]_" via l'appel de fonction "_BMP280_ReadMulti(BMP280_CALIBRATION, &calibration_values, 26)_".  
-La fonction _BMP280_ReadMulti_ va alors remplir le buffer _calibration_values_ en commencant à lire au registre _BMP280_CALIBRATION_ (valant 0xA1) et en incrémentant automatiquement l'adresse du registre 26 fois, soit jusqu'à avoir fini de lire dans l'ensemble des registres d'étalonnage du module.  
+Afin de récupérer en une fois le contenu des registres d'étalonnages du BMP280, nous écrivons la fonction ```bmp280_read_calibration()```.  
+Dans cette fonction, nous remplissons tout simplement le buffer _buf_ via l'appel de fonction ```bmp280_read_registers(&hi2c1, BMP280_REG_CALIB_START, buf, 24)```.  
+La fonction _bmp280_read_registers_ va alors remplir le buffer _buf_ en commencant à lire au registre _BMP280_CALIBRATION_ (valant 0xA1) et en incrémentant automatiquement l'adresse du registre 26 fois, soit jusqu'à avoir fini de lire dans l'ensemble des registres d'étalonnage du module.  
 
-Ensuite, nous définissons la fonction "_void BMP280_ReadRawData(int32_t *raw_temp, int32_t *raw_press)_", permettant d'obtenir respectivement les valeurs brutes de température et de pression lues par le capteur, sans traitement.  
+Ensuite, nous définissons la fonction ```bmp280_read_raw(int32_t *raw_temp, int32_t *raw_press)```, permettant d'obtenir respectivement les valeurs brutes de température et de pression lues par le capteur, sans traitement.  
 Une fois encore, le principe est le même : nous commencons à lire à l'adresse _BMP280_PRESS_MSB_ (valant 0xF7) jusqu'au registre 0xFC, puis nous mettons en forme les données lues dans les variables raw_temp et raw_press, conformément à ce qui est écrit dans la datasheet.  
 
 #### Calcul des températures et des pression compensées  
 
-Pour finir, nous utilisons les fonctions données dans la datasheet page 45 et 46 afin d'appliquer un traitement sur les valeurs de température et de pression mesurée par le capteur, en vue d'obtenir des valeurs les plus correctes possible.  
+Pour finir, nous utilisons les fonctions données dans la datasheet page 45 et 46 afin d'appliquer un traitement sur les valeurs brutes de température et de pression mesurées par le capteur, en vue d'obtenir des valeurs compensées les plus correctes possibles.  
 Nous reprenons directement le contenu fournit dans la datasheet.  
 
-Une fois cela fait, nous utilisons la boucle _while(1)_ du fichier "_main.c_" afin d'effectuer des mesures de pression et de température et comparer les valeurs brutes aux valeurs avec traitement.  
-Nous observons que... A CONTINUER !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
+Nous implémentons alors la fonction ```bmp280_read_temp_press_int(int32_t* temperature_raw_100, uint32_t* pressure_raw_100, int32_t* temperature_compensate_100, uint32_t* pressure_compensate_100)```.  
+Dont le fonctionnement est le suivant :  
+- on lit les valeurs brutes de température et de pression via l'appel ```bmp280_read_raw(&raw_T, &raw_P)``` et on inscrit le résultat dans les buffers _raw_T_ et _raw_P_
+- on applique une compension sur la valeur brute de température mesurée via l'appel ```bmp280_compensate_T_int32(raw_T)```
+- on applique une compension sur la valeur brute de pression mesurée via l'appel ```bmp280_compensate_P_int32(raw_P)```
+- pour finir, on inscrit les valeurs brutes et compensées de température et de pression en pointant directement sur les variables passées en paramètres :
+  ```C
+  *temperature_raw_100 = raw_T;
+  *pressure_raw_100 = raw_P;
+  *temperature_compensate_100 = bmp280_compensate_T_int32(raw_T);
+  *pressure_compensate_100    = bmp280_compensate_P_int32(raw_P);
+  ```
+
+Une fois tout cela fait, nous testons alors notre fonction dans le fichier "main.c".  
+```C
+	// Code BMP280 pour capture et affichage de température et pression compensées et non compensées
+	bmp280_init();
+	bmp280_print_temperature_pressure();
+```
+Nous obtenons alors le résultat suivant :  
+<img width="702" height="62" alt="image" src="https://github.com/user-attachments/assets/8e05e355-69b1-475a-9a83-73dfd6ad7e3c" />  
+
+Nous observons donc que les valeurs brutes ne sont clairement pas exploitables. Les valeurs compensées, quant à elles, sont parfaitement correctes et représentatives de la réalité.  
+
+> NOTE : comme vu en cours, nous utilisons des entiers directement et venons intercaller des virgules afin de donner "l'illusion" de nombres à virgules. Cela nous permet de libérer de l'espace mémoire et est donc moins énergivore.
+
+Cela est fait ici :
+```C
+	if (bmp280_read_temp_press_int(&temp_raw_100, &press_raw_100, &temp_compensate_100, &press_compensate_100) == HAL_OK)
+	{
+		printf("\r\n raw temperature = %ld.%02ld degres C, compensate temperature = %ld.%02ld degres C, raw pressure = %lu.%02lu hPa, compensate pressure = %lu.%02lu hPa \r\n",
+				temp_raw_100 / 100, temp_raw_100 % 100,
+				temp_compensate_100 / 100, temp_compensate_100 % 100,
+				press_raw_100 / 100, press_raw_100 % 100,
+				press_compensate_100 / 100, press_compensate_100 % 100);
+	}
+```  
 
 ## Mise en place de l'interfaçage STM32-Raspberry  
 
