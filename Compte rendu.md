@@ -216,26 +216,32 @@ Nous utiliserons un script Python afin d'interroger la carte STM32 depuis la Ras
 
 ### Mise en route du Raspberry PI Zéro  
 
-#### Préparation du Raspberry  
+#### Préparation du Raspberry et configuration de l'image
 
-Informations saisies lors de la création de l'image via Raspberry Pi Imager :  
+Informations saisies lors de la création de l'image via ```Raspberry Pi Imager``` :  
+```
 - hostname : HugoCFArthurNN
 - nom utilisateur : hugoarthur
 - mdp : ensea2526
 - SSH : C304_DTI_AP
 - mdp : ilovelinux
+```
 
 #### Premier démarrage  
 
 Nous flashons alors la carte SD avec les configurations faites via Raspberry Pi Imager.  
+
 La Raspberry a obtenu son adresse IP sur le réseau de la même manière qu’un ordinateur classique : via le protocole DHCP.  
 Son adresse IP correspond à la théorie vue en cours :  
 ![OIP NHsl6SOwA1YLv5Rn71-dHwHaFj](https://github.com/user-attachments/assets/d01dba0f-2ff9-4451-8b7e-074d66e4c709)  
 
 Nous nous connectons alors à notre Raspberry PI Zero en suivant le protocole suivant :  
+```
 - ouverture du terminal de cmd Windows
 - ecrire dans le terminal : ssh hugoarthur@192.168.4.207
-- ecrire dans le terminal le mdp : ensea2526  
+- ecrire dans le terminal le mdp : ensea2526
+```
+
 Nous obtenons alors l'interface suivante :
 <img width="1184" height="222" alt="image" src="https://github.com/user-attachments/assets/4fa3d9a4-2ad5-4112-aebc-d88fb25c0e67" />  
   
@@ -246,12 +252,16 @@ Nous obtenons alors l'interface suivante :
 Dans un premier temps, nous rebouclons la pin RX sur la pin TX.
 ![BOARD-Layout-CMPLETE_800x506-768x486](https://github.com/user-attachments/assets/c5023909-3ba7-494d-9369-463907a953ff)  
 
-Nous installons minicom via la commande : 
-_sudo apt update_  
-_sudo apt install minicom_  
+Nous installons minicom via les commandes :  
+```
+sudo apt update  
+sudo apt install minicom
+```    
 
 Suite à cela, nous écrivons dans le terminal de cmd Windows :  
-- sudo minicom -D /dev/ttyS0
+```
+sudo minicom -D /dev/ttyS0
+```
 
 Cela nous permet alors de configurer le port série. Nous le configurons de la manière suivante (en pressant CTRL+A suivi de O) :  
 <img width="892" height="429" alt="image" src="https://github.com/user-attachments/assets/f1b7800b-caa1-465a-a40a-2741d357a99f" />  
@@ -259,7 +269,7 @@ Cela nous permet alors de configurer le port série. Nous le configurons de la m
 Nous pouvons effectivement écrire et visualiser les caractères écrits en même temps : 
 <img width="872" height="362" alt="image" src="https://github.com/user-attachments/assets/8d1e3471-f603-4273-9bae-c4aa8c7cd734" />
 
-#### Communication avec la STM32  
+#### Communication avec la STM32  --
 
 En connectant notre sortie RX de notre Rasberry avec la sortie TX du STM32, nous parvenons à lire les valeurs envoyées par notre STM32 : 
 <img width="985" height="740" alt="image" src="https://github.com/user-attachments/assets/b76f8cf8-f76b-4bf6-bebf-335ca62c7af7" />  
