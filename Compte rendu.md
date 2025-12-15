@@ -299,13 +299,11 @@ Le protocole STM32-RPI fonctionne donc parfaitement !
 
 ### Commande depuis Python
 
-$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Nous avons installé python3-pip :  
+<img width="733" height="79" alt="image" src="https://github.com/user-attachments/assets/11dce93c-0de9-4ba3-aee9-41c916271788" />  
 
-Nous avons installé python3-pip : 
-<img width="733" height="79" alt="image" src="https://github.com/user-attachments/assets/11dce93c-0de9-4ba3-aee9-41c916271788" />
-
-Nous avons bien installée la bibliothèque pyserial : 
-<img width="687" height="287" alt="image" src="https://github.com/user-attachments/assets/6627dfae-4acf-47bb-9488-4abc0b7b5374" />
+Nous avons bien installée la bibliothèque pyserial :  
+<img width="687" height="287" alt="image" src="https://github.com/user-attachments/assets/6627dfae-4acf-47bb-9488-4abc0b7b5374" />  
 
 ## Interface REST  
 
@@ -317,7 +315,7 @@ Nous réaliserons cela via Python depuis la Raspberry.
 
 #### Installation 
 
-Nous passons l'étape de création d'un utilisateur différent de pi, puisque nous somme déjà logé sous le nom de hugoarthur.  
+Nous passons l'étape de création d'un utilisateur différent de pi, puisque nous somme déjà logé sous le nom de ```hugoarthur```.  
 <img width="441" height="50" alt="image" src="https://github.com/user-attachments/assets/24b7418c-f2c4-45fa-9f8f-d218a7a6eb17" />  
 
 Nous installons ensuite Python sur la Raspberry via les commandes suivantes :  
@@ -327,7 +325,7 @@ sudo apt install python3-pip
 ```
 
 Une fois loggé dans notre session et python 3 installé, nous réalisons les opérations suivantes :  
-- 1° : nous créons un répertoire nommé restserver depuis le chemin /home/hugoarthur via la commande :  
+- 1° : nous créons un répertoire nommé ```restserver``` depuis le chemin /home/hugoarthur via la commande :  
   - ```
     mkdir restserver
     ```
@@ -368,7 +366,7 @@ FLASK_APP=hello.py flask run --debug
 A ce stade, le problème est que le serveur ne tourne qu'en mode loopback sur la Raspberry.  
 Afin de rendre le serveur accessible depuis un navigateur, et en particulier depuis le navigateur de notre ordinateur, nous entrons en plus de la commande précédente la commande suivante :  
 ```
- FLASK_APP=hello.py FLASK_ENV=development flask run --host 0.0.0.0.0
+FLASK_APP=hello.py FLASK_ENV=development flask run --host 0.0.0.0.0
 ```
 En plus de cela, nous entrons DANS UN NOUVEAU TERMINAL, la commande suivante :  
 ```
