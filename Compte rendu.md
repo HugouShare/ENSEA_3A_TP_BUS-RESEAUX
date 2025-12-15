@@ -269,26 +269,33 @@ Cela nous permet alors de configurer le port série. Nous le configurons de la m
 Nous pouvons effectivement écrire et visualiser les caractères écrits en même temps : 
 <img width="872" height="362" alt="image" src="https://github.com/user-attachments/assets/8d1e3471-f603-4273-9bae-c4aa8c7cd734" />
 
-#### Communication avec la STM32  --
+#### Communication avec la STM32
 
 Nous voulons établir le protocole suivant entre la Raspberry PI et la STM32 :  
 <img width="680" height="195" alt="image" src="https://github.com/user-attachments/assets/d8f5fedb-7882-42f6-9069-33e5ce2f92e2" />  
 
 Pour ce faire, nous ajoutons les fichiers ```interface_stm32_raspberry.c``` et ```interface_stm32_raspberry.h```.  
 Nous implémentons alors dans le fichier ```interface_stm32_raspberry.c``` les fonctions suivantes :  
-- ```void send_temperature()``` : permettant d'envoyer la température
-- ```void send_pressure()``` : permettant d'envoyer la pression
-- ```void send_K()``` : permettant de fixer la valeur du coefficient K
-- ```void send_angle()``` : permettant d'envoyer la valeur d'un angle
-- ```void interface_stm32_raspberry_process_command()``` : permettant l'interface entre la Raspberry PI et la STM32
+- ```interface_stm32_raspberry_process_command(char *cmd)``` : permettant l'interface entre la Raspberry PI et la STM32
+- ```HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)``` : permettant de traiter la commande reçue suite à une interruption déclenchée via l'USART  
 
 Le fonctionnement est donc le suivant : depuis le terminal de la Raspberry PI, nous pouvons désormais entrer une des requêtes RPI citées précédemment. Cette requête est alors transmise via USART jusqu'à la STM32, qui reçoit alors cette requête la traite et retourne une réponse semblable à celles citées précédemment via USART.  
 
-Nous testons maintenant le bon fonctionnement du protocole :  
-$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Nous testons maintenant le bon fonctionnement du protocole.  
+Nous écrivons dans le terminal cmd Windows la commande suivante :  
+```
+GET_T
+```
+Nous obtenons alors :  
+<img width="104" height="22" alt="image" src="https://github.com/user-attachments/assets/f7edeca8-05ef-4f49-8584-46e586ca6539" />
+Et si nous écrivons dans le terminal cmd Windows la commande suivante :  
+```
+GET_P
+```
+Nous obtenons alors :  
+<img width="162" height="21" alt="image" src="https://github.com/user-attachments/assets/e4a5a068-ee40-46b2-850a-920bbd51adf6" />  
 
-En connectant notre sortie RX de notre Rasberry avec la sortie TX du STM32, nous parvenons à lire les valeurs envoyées par notre STM32 : 
-<img width="985" height="740" alt="image" src="https://github.com/user-attachments/assets/b76f8cf8-f76b-4bf6-bebf-335ca62c7af7" />  
+Le protocole STM32-RPI fonctionne donc parfaitement !  
 
 ### Commande depuis Python
 
