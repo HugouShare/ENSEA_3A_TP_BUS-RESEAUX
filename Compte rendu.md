@@ -526,7 +526,12 @@ Nous obtenons alors :
 
 ##### API CRUD  
 
-Dans le ```hello.py```, on met en place les commandes API CRUD
+Dans le ```hello.py```, on met en place les commandes API CRUD : 
+<img width="989" height="670" alt="image" src="https://github.com/user-attachments/assets/2f77aa81-a7c4-4deb-8724-7390d78c073a" />
+<img width="990" height="845" alt="image" src="https://github.com/user-attachments/assets/e29c2d20-5167-45bb-b767-ab3d23cb48c0" />
+<img width="992" height="911" alt="image" src="https://github.com/user-attachments/assets/b87afa8e-7033-4949-a758-d90e69a82472" />
+
+
 
 ## Bus CAN  
 
