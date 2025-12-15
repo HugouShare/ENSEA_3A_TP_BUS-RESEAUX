@@ -9,7 +9,7 @@ Durant ces TPs de bus & réseaux, l'objectif est de mettre en place le système 
 
 Dans un premier temps, nous allons mettre en place la partie I2C du projet.  
 <img width="714" height="208" alt="image" src="https://github.com/user-attachments/assets/b8640915-dbf7-40d3-b937-7191a3778152" />  
-![3543454c-a635-4072-a4a0-bbf3fbf42fa4~1(1)](https://github.com/user-attachments/assets/2dd9cfb0-b5ac-4326-9cdd-b6cea80a035f)  
+<img src="https://github.com/user-attachments/assets/2dd9cfb0-b5ac-4326-9cdd-b6cea80a035f" width="50%">  
 Nous utilisons une communication I2C afin de communiquer avec le capteur BMP280.  
 
 ### Capteur BMP280  
