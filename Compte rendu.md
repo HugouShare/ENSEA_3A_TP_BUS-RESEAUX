@@ -188,6 +188,9 @@ En connectant notre sortie RX de notre Rasberry avec la sortie TX du STM32, nous
 Nous avons installé python3-pip : 
 <img width="733" height="79" alt="image" src="https://github.com/user-attachments/assets/11dce93c-0de9-4ba3-aee9-41c916271788" />
 
+Nous avons bien installée la bibliothèque pyserial : 
+<img width="687" height="287" alt="image" src="https://github.com/user-attachments/assets/6627dfae-4acf-47bb-9488-4abc0b7b5374" />
+
 ## Interface REST  
 
 Nous mettons maintenant en place une interface REST (Representational State Transfer) sur le Raspberry. 
