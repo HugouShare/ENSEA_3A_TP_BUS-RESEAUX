@@ -287,7 +287,7 @@ Nous écrivons dans le terminal cmd Windows la commande suivante :
 GET_T
 ```
 Nous obtenons alors :  
-<img width="104" height="22" alt="image" src="https://github.com/user-attachments/assets/f7edeca8-05ef-4f49-8584-46e586ca6539" />
+<img width="104" height="22" alt="image" src="https://github.com/user-attachments/assets/f7edeca8-05ef-4f49-8584-46e586ca6539" />  
 Et si nous écrivons dans le terminal cmd Windows la commande suivante :  
 ```
 GET_P
@@ -298,6 +298,8 @@ Nous obtenons alors :
 Le protocole STM32-RPI fonctionne donc parfaitement !  
 
 ### Commande depuis Python
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
 Nous avons installé python3-pip : 
 <img width="733" height="79" alt="image" src="https://github.com/user-attachments/assets/11dce93c-0de9-4ba3-aee9-41c916271788" />
