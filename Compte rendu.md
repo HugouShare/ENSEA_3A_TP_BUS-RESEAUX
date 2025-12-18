@@ -297,9 +297,15 @@ Nous obtenons alors :
 
 Le protocole STM32-RPI fonctionne donc parfaitement !  
 
-### Commande depuis Python
+### Commande depuis Python  
 
-Nous installons, via la commande suivante, pyserial afin de pouvoir communiquer en USART entre la Raspberry PI et la STM32 :  
+Nous commençons par installer Python sur la Raspberry via les commandes suivantes :  
+```
+sudo apt update
+sudo apt install python3-pip
+```  
+
+Suite à cela, nous installons pyserial afin de pouvoir communiquer en USART entre la Raspberry PI et la STM32 via la commande suivante :  
 `pip3 install pyserial`  
 
 Nous avons bien installé la bibliothèque pyserial :  
@@ -357,7 +363,7 @@ if __name__ == "__main__":
     finally:
         ser.close()
         print("[OK] Port série fermé.")
-```
+```  
 
 Suite à cela, nous testons alors le résultat en écrivant dans le shell :  
 `python3 interface_stm32_raspberry.py`  
@@ -390,18 +396,12 @@ Nous réaliserons cela via Python depuis la Raspberry.
 Nous passons l'étape de création d'un utilisateur différent de pi, puisque nous somme déjà logé sous le nom de ```hugoarthur```.  
 <img width="441" height="50" alt="image" src="https://github.com/user-attachments/assets/24b7418c-f2c4-45fa-9f8f-d218a7a6eb17" />  
 
-Nous installons ensuite Python sur la Raspberry via les commandes suivantes :  
-```
-sudo apt update
-sudo apt install python3-pip
-```
-
 Une fois loggé dans notre session et python 3 installé, nous réalisons les opérations suivantes :  
-- 1° : nous créons un répertoire nommé ```restserver``` depuis le chemin /home/hugoarthur via la commande :  
+- 1° : nous créons un répertoire nommé ```restserver``` depuis le chemin `/home/hugoarthur` via la commande :  
   - ```
     mkdir restserver
     ```
-    Nous nous mettons alors dans le répertoire suivant : /home/hugoarthur/restserver
+    Nous nous mettons alors dans le répertoire suivant : `/home/hugoarthur/restserver`  
 - 2° : dans le répertoire restserver, nous créons un fichier nommé "_requirement.txt_" via la commande :
   - ```
     touch requirement.txt
@@ -467,25 +467,19 @@ def api_welcome():
 @app.route('/api/welcome/<int:index>')
 def api_welcome_index(index):
     return welcome[index]
-```
+```  
 
 Le décorateur @app.route sert à associer une URL (un chemin) à une fonction python. 
 Le rôle du fragment <int:index> permet de capturer un paramètre dans l'URL et de le passer à la fonction.  
 En entrant dans notre navigateur les commandes suivantes, nous obtenons respectivement :  
-```
-http://192.168.4.207:5000/api/welcome/
-```
+`http://192.168.4.207:5000/api/welcome/`  
 <img width="198" height="29" alt="image" src="https://github.com/user-attachments/assets/271ab8ba-e327-451a-856d-dadf99ef7798" />  
-```
-http://192.168.4.207:5000/api/welcome/0
-```
+`http://192.168.4.207:5000/api/welcome/0`  
 <img width="24" height="22" alt="image" src="https://github.com/user-attachments/assets/345f35a6-1a98-445b-9ad6-a87bcb2f7ea2" />  
-```
-http://192.168.4.207:5000/api/welcome/1
-```
+`http://192.168.4.207:5000/api/welcome/1`    
 <img width="17" height="16" alt="image" src="https://github.com/user-attachments/assets/2c1526f2-7958-43d3-80eb-7618a401700b" />  
 
-REMARQUE : En parallèle des appels faits depuis les navigateurs WEB, nous observons l'affichage des différentes requêtes faites :  
+> REMARQUE : En parallèle des appels faits depuis les navigateurs WEB, nous observons l'affichage des différentes requêtes faites :  
 <img width="1425" height="489" alt="image" src="https://github.com/user-attachments/assets/c9b98e04-a89d-4bdf-9fed-511fe7b68a1e" />
 
 #### Première page REST  
@@ -594,35 +588,203 @@ Suite à cela, nous utilisons l'extension Firefox _RESTED_ afin d'interroger not
 Nous obtenons alors :  
 <img width="1215" height="778" alt="image" src="https://github.com/user-attachments/assets/09a3996a-a649-4acf-a1ca-ac95c899607e" />  
 
-##### API CRUD  
+#### API CRUD  
 
-Dans le ```hello.py```, on met en place les commandes API CRUD : 
-<img width="989" height="670" alt="image" src="https://github.com/user-attachments/assets/2f77aa81-a7c4-4deb-8724-7390d78c073a" />
-<img width="990" height="845" alt="image" src="https://github.com/user-attachments/assets/e29c2d20-5167-45bb-b767-ab3d23cb48c0" />
-<img width="992" height="911" alt="image" src="https://github.com/user-attachments/assets/b87afa8e-7033-4949-a758-d90e69a82472" />
+Dans le fichier `hello.py`, nous plaçons le code suivant :  
+```PYTHON
+from flask import Flask, jsonify, abort, send_from_directory, render_template
+import serial
+import time
+import sys
 
-##### Nous testons notre POST PUT et DELETE
-Nous testons notrez ```POST``` dans le terminal 
-<img width="1337" height="83" alt="image" src="https://github.com/user-attachments/assets/45b5621a-d8f8-41a6-9ac9-11106a66e2ec" />
+app = Flask(__name__)
 
-Résultat sur notre page web : 
-<img width="1265" height="197" alt="image" src="https://github.com/user-attachments/assets/31ad099c-befd-4b3b-8439-7848445d6c86" />
+# --------------------
+# SERIAL COMMUNICATION
+# --------------------
 
-Nous testons notre ```PUT``` dans le terminal, l'objectif est d'insérer ```Lexcellence``` à la position ```4```
-<img width="1330" height="84" alt="image" src="https://github.com/user-attachments/assets/da1f5921-6d51-4caa-a18f-41c00feab037" />
-
-Résultat sur notre page web : 
-<img width="829" height="226" alt="image" src="https://github.com/user-attachments/assets/24456adf-92c0-4126-bf29-21f34698fd86" />
-
-Nous testons notre ```DELETE``` dans le terminal, On supprime ainsi la lettre à la position ```1```
-<img width="1136" height="52" alt="image" src="https://github.com/user-attachments/assets/d58d6a4c-a752-4ea5-8c9d-5ca6e6f401aa" />
-
-Résultat après 4 suppressions 
-<img width="881" height="239" alt="image" src="https://github.com/user-attachments/assets/cbe6ecf1-dc50-486b-84d9-df25180d2f6b" />
+def open_serial(port="/dev/ttyAMA0", baudrate=115200):
+    try:
+        ser = serial.Serial(port, baudrate, timeout=1, write_timeout=1)
+        print(f"[OK] Port série ouvert : {port} @ {baudrate}")
+        return ser
+    except Exception as e:
+        print(f"[ERREUR] Port série : {e}")
+        sys.exit(1)
 
 
+def send_command(cmd):
+    ser.write((cmd + "\n").encode())
+    time.sleep(0.05)
+    response = ser.read_all().decode(errors="ignore").strip()
+    print(f"→ {cmd} → {response}")
+    return response
 
 
+# Ouverture du port série UNE SEULE FOIS
+ser = open_serial("/dev/ttyAMA0", 115200)
+
+
+# --------------------
+# DATA STORAGE
+# --------------------
+
+temperatures = []
+pressures = []
+scale = 1.0
+
+
+# --------------------
+# CREATE
+# --------------------
+
+@app.route('/temp/', methods=['POST'])
+def create_temperature():
+    response = send_command("GET_T")
+
+    try:
+        value = float(response)
+    except ValueError:
+        return jsonify({"error": "Invalid temperature from STM32"}), 500
+
+    temperatures.append(value)
+    return jsonify({
+        "message": "Temperature retrieved",
+        "index": len(temperatures) - 1,
+        "value": value
+    }), 201
+
+
+@app.route('/pres/', methods=['POST'])
+def create_pressure():
+    response = send_command("GET_P")
+
+    try:
+        value = float(response)
+    except ValueError:
+        return jsonify({"error": "Invalid pressure from STM32"}), 500
+
+    pressures.append(value)
+    return jsonify({
+        "message": "Pressure retrieved",
+        "index": len(pressures) - 1,
+        "value": value
+    }), 201
+
+
+# --------------------
+# RETRIEVE
+# --------------------
+
+@app.route('/temp/', methods=['GET'])
+def get_all_temperatures():
+    return jsonify(temperatures)
+
+
+@app.route('/temp/<int:x>', methods=['GET'])
+def get_temperature(x):
+    if x < 0 or x >= len(temperatures):
+        abort(404)
+    return jsonify({"index": x, "value": temperatures[x]})
+
+
+@app.route('/pres/', methods=['GET'])
+def get_all_pressures():
+    return jsonify(pressures)
+
+
+@app.route('/pres/<int:x>', methods=['GET'])
+def get_pressure(x):
+    if x < 0 or x >= len(pressures):
+        abort(404)
+    return jsonify({"index": x, "value": pressures[x]})
+
+
+@app.route('/scale/', methods=['GET'])
+def get_scale():
+    return jsonify({"scale": scale})
+
+
+@app.route('/angle/', methods=['GET'])
+def get_angle():
+    if not temperatures:
+        return jsonify({"error": "No temperature available"}), 400
+
+    angle = temperatures[-1] * scale
+    return jsonify({
+        "temperature": temperatures[-1],
+        "scale": scale,
+        "angle": angle
+    })
+
+
+# --------------------
+# UPDATE
+# --------------------
+
+@app.route('/scale/<int:x>', methods=['POST'])
+def update_scale(x):
+    global scale
+    data = app.current_request.get_json(silent=True)
+
+    if not data or 'value' not in data:
+        return jsonify({"error": "Missing 'value'"}), 400
+
+    scale = data['value']
+    return jsonify({
+        "message": f"Scale updated for {x}",
+        "scale": scale
+    })
+
+
+# --------------------
+# DELETE
+# --------------------
+
+@app.route('/temp/<int:x>', methods=['DELETE'])
+def delete_temperature(x):
+    if x < 0 or x >= len(temperatures):
+        abort(404)
+
+    return jsonify({
+        "message": "Temperature deleted",
+        "value": temperatures.pop(x)
+    })
+
+
+@app.route('/pres/<int:x>', methods=['DELETE'])
+def delete_pressure(x):
+    if x < 0 or x >= len(pressures):
+        abort(404)
+
+    return jsonify({
+        "message": "Pressure deleted",
+        "value": pressures.pop(x)
+    })
+
+
+# --------------------
+# ERRORS
+# --------------------
+
+@app.errorhandler(404)
+def not_found(error):
+    return jsonify({"error": "Not found"}), 404
+
+
+# --------------------
+# MAIN
+# --------------------
+
+if __name__ == '__main__':
+    try:
+        app.run(debug=True)
+    finally:
+        ser.close()
+        print("[OK] Port série fermé")
+```
+
+> Nous le testerons plus tard, lors de l'intégration finale...  
 
 ## Bus CAN  
 
@@ -706,3 +868,25 @@ motor_test_loop();
 ```
 Nous observons alors que le moteur fonctionne bel et bien comme désiré :  
 ![PXL_20251210_141720348(2)](https://github.com/user-attachments/assets/f8dd9cd3-7fd7-4323-b0ed-a0b7ed6158ce)  
+
+### Interfaçage avec le capteur  
+
+
+
+## Intégration  
+
+Nous allons maintenant réaliser l'intégration de l'ensemble du travail fournit durant les séances de TP.  
+
+Nous commençons par créer une page HTML intitulée `interface_stm32_raspberry` afin de pouvoir réaliser des requêtes directment depuis cette page.  
+
+Nous ajoutons, en parallèle de cela, dans le fichier `hello.py` le morceau de code suivant :  
+```PYTHON
+# --------------------
+# HTML
+# --------------------
+
+@app.route('/')
+def index():
+    return send_from_directory('.', 'interface_stm32_raspberry.html')
+```
+C'est ce morceau de code qui va nous permettre d'accéder à la page web que nous avons depuis notre naviguateur personnel directment. 
