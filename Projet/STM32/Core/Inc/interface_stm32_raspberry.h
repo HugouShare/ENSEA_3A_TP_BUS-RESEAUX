@@ -13,10 +13,6 @@
 #include "usart.h"
 
 //////////////////////////////////////// FUNCTIONS
-void send_temperature();
-void send_pressure();
-void send_K();
-void send_angle();
-void interface_stm32_raspberry_process_command();
+void interface_stm32_raspberry_process_command(char *cmd);
 
 #endif /* INC_INTERFACE_STM32_RASPBERRY_H_ */

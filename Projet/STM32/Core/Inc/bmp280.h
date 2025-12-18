@@ -52,17 +52,17 @@ extern int32_t t_fine;
 
 // Fonctions
 HAL_StatusTypeDef bmp280_init(void);
-HAL_StatusTypeDef BMP280_ReadCalibration(void);
-HAL_StatusTypeDef BMP280_WriteRegister(I2C_HandleTypeDef *hi2c, uint8_t reg, uint8_t value);
-HAL_StatusTypeDef BMP280_ReadRegisters(I2C_HandleTypeDef *hi2c, uint8_t reg, uint8_t *buffer, uint16_t length);
-HAL_StatusTypeDef BMP280_ReadRaw(int32_t *raw_temp, int32_t *raw_press);
+HAL_StatusTypeDef bmp280_read_calibration(void);
+HAL_StatusTypeDef bmp280_write_register(I2C_HandleTypeDef *hi2c, uint8_t reg, uint8_t value);
+HAL_StatusTypeDef bmp280_read_registers(I2C_HandleTypeDef *hi2c, uint8_t reg, uint8_t *buffer, uint16_t length);
+HAL_StatusTypeDef bmp280_read_raw(int32_t *raw_temp, int32_t *raw_press);
 
 // Compensation 32 bits
 int32_t bmp280_compensate_T_int32(int32_t adc_T);
 uint32_t bmp280_compensate_P_int32(int32_t adc_P);
 
 // Lecture + compensation en entier
-HAL_StatusTypeDef BMP280_ReadTempPressInt(int32_t* temperature_raw_100, uint32_t* pressure_raw_100, int32_t* temperature_compensate_100, uint32_t* pressure_compensate_100);
+HAL_StatusTypeDef bmp280_read_temp_press_int(int32_t* temperature_raw_100, uint32_t* pressure_raw_100, int32_t* temperature_compensate_100, uint32_t* pressure_compensate_100);
 
 // Affichage des valeurs de T et P
 void bmp280_print_temperature_pressure (void);

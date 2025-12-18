@@ -33,6 +33,37 @@ void motor_command_send(int8_t angle_cmd)
     }
 }
 
+void motor_commanded_by_T(int32_t temp_100)
+{
+    static int32_t temp_init;
+    static uint8_t first_call = 1;
+
+    int32_t deg;
+
+    /* Initialisation au premier appel */
+    if (first_call)
+    {
+        temp_init = temp_100;
+        first_call = 0;
+    }
+
+	if (temp_100 > temp_init){
+		deg = (int32_t) (temp_100 - temp_init)*TEMP_MOT_COEFF;
+		deg = (deg > 180) ? 180 : deg;
+		deg = (deg < 0)   ? 0   : deg;
+		DRIVER_CAN_SendAngle(deg, POSITIVE);
+		HAL_Delay(1000);
+	}
+	else{
+		deg = (int32_t) (temp_init - temp_100)*TEMP_MOT_COEFF;
+		deg = (deg > 180) ? 180 : deg;
+		deg = (deg < 0)   ? 0   : deg;
+		DRIVER_CAN_SendAngle(deg, NEGATIVE);
+		HAL_Delay(1000);
+
+	}
+}
+
 void motor_test_loop(void)
 {
     // Démarrage du module CAN

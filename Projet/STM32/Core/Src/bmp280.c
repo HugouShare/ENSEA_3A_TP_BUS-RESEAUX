@@ -25,13 +25,13 @@ extern uint8_t uart4_rx;
 extern char command[16];
 
 // ---- Fonctions I2C ----
-HAL_StatusTypeDef BMP280_WriteRegister(I2C_HandleTypeDef *hi2c, uint8_t reg, uint8_t value)
+HAL_StatusTypeDef bmp280_write_register(I2C_HandleTypeDef *hi2c, uint8_t reg, uint8_t value)
 {
 	uint8_t data[2] = {reg, value};
 	return HAL_I2C_Master_Transmit(hi2c, BMP280_I2C_ADDR, data, 2, HAL_MAX_DELAY);
 }
 
-HAL_StatusTypeDef BMP280_ReadRegisters(I2C_HandleTypeDef *hi2c, uint8_t reg, uint8_t *buffer, uint16_t length)
+HAL_StatusTypeDef bmp280_read_registers(I2C_HandleTypeDef *hi2c, uint8_t reg, uint8_t *buffer, uint16_t length)
 {
 	HAL_StatusTypeDef ret;
 
@@ -49,7 +49,7 @@ HAL_StatusTypeDef bmp280_init(void)
 	HAL_StatusTypeDef ret;
 
 	// 1) Lecture de l'ID
-	ret = BMP280_ReadRegisters(&hi2c1, BMP280_REG_ID, &id, 1);
+	ret = bmp280_read_registers(&hi2c1, BMP280_REG_ID, &id, 1);
 	if (ret != HAL_OK) {
 		printf("Erreur lecture ID BMP280\r\n");
 		return ret;
@@ -62,38 +62,38 @@ HAL_StatusTypeDef bmp280_init(void)
 	}
 
 	// 2) Configuration CTRL_MEAS : Temp x2, Press x16, mode normal -> BMP280_Init_Config
-	ret = BMP280_WriteRegister(&hi2c1, BMP280_REG_CTRL_MEAS, BMP280_Init_Config);
+	ret = bmp280_write_register(&hi2c1, BMP280_REG_CTRL_MEAS, BMP280_Init_Config);
 	if (ret != HAL_OK) {
-		printf("Erreur écriture configuration CTRL_MEAS\r\n");
+		printf("Erreur ecriture configuration CTRL_MEAS\r\n");
 		return ret;
 	}
 
 	// 3) Vérification écriture
 	uint8_t check;
-	ret = BMP280_ReadRegisters(&hi2c1, BMP280_REG_CTRL_MEAS, &check, 1);
+	ret = bmp280_read_registers(&hi2c1, BMP280_REG_CTRL_MEAS, &check, 1);
 	if (ret != HAL_OK) {
 		printf("Erreur lecture vérification configuration\r\n");
 		return ret;
 	}
 
 	if (check == BMP280_Init_Config) {
-		printf("Configuration appliquée: CTRL_MEAS = 0x%02X\r\n", check);
+		printf("Configuration appliquee: CTRL_MEAS = 0x%02X\r\n", check);
 	} else {
 		printf("Configuration incorrecte: lu = 0x%02X\r\n", check);
 	}
 
-	BMP280_ReadCalibration();
+	bmp280_read_calibration();
 
 	return HAL_OK;
 }
 
 // ---- Lecture des coefficients de calibration ----
-HAL_StatusTypeDef BMP280_ReadCalibration(void)
+HAL_StatusTypeDef bmp280_read_calibration(void)
 {
 	uint8_t buf[24];
 	HAL_StatusTypeDef ret;
 
-	ret = BMP280_ReadRegisters(&hi2c1, BMP280_REG_CALIB_START, buf, 24);
+	ret = bmp280_read_registers(&hi2c1, BMP280_REG_CALIB_START, buf, 24);
 	if (ret != HAL_OK) return ret;
 
 	dig_T1 = (buf[1] << 8) | buf[0];
@@ -114,12 +114,12 @@ HAL_StatusTypeDef BMP280_ReadCalibration(void)
 }
 
 // ---- Lecture RAW ----
-HAL_StatusTypeDef BMP280_ReadRaw(int32_t *raw_temp, int32_t *raw_press)
+HAL_StatusTypeDef bmp280_read_raw(int32_t *raw_temp, int32_t *raw_press)
 {
 	uint8_t buffer[6];
 	HAL_StatusTypeDef ret;
 
-	ret = BMP280_ReadRegisters(&hi2c1, BMP280_REG_PRESS_MSB, buffer, 6);
+	ret = bmp280_read_registers(&hi2c1, BMP280_REG_PRESS_MSB, buffer, 6);
 	if (ret != HAL_OK) return ret;
 
 	*raw_press = (int32_t)(buffer[0] << 12) | (buffer[1] << 4) | (buffer[2] >> 4);
@@ -177,12 +177,12 @@ uint32_t bmp280_compensate_P_int32(int32_t adc_P)
 }
 
 // ---- Lecture + compensation unique ----
-HAL_StatusTypeDef BMP280_ReadTempPressInt(int32_t* temperature_raw_100, uint32_t* pressure_raw_100, int32_t* temperature_compensate_100, uint32_t* pressure_compensate_100)
+HAL_StatusTypeDef bmp280_read_temp_press_int(int32_t* temperature_raw_100, uint32_t* pressure_raw_100, int32_t* temperature_compensate_100, uint32_t* pressure_compensate_100)
 {
 	int32_t raw_T, raw_P;
 	HAL_StatusTypeDef ret;
 
-	ret = BMP280_ReadRaw(&raw_T, &raw_P);
+	ret = bmp280_read_raw(&raw_T, &raw_P);
 	if (ret != HAL_OK) return ret;
 
 	*temperature_raw_100 = raw_T;
@@ -200,9 +200,9 @@ void bmp280_print_temperature_pressure (void)
 	int32_t temp_compensate_100;
 	uint32_t press_compensate_100;
 
-	if (BMP280_ReadTempPressInt(&temp_raw_100, &press_raw_100, &temp_compensate_100, &press_compensate_100) == HAL_OK)
+	if (bmp280_read_temp_press_int(&temp_raw_100, &press_raw_100, &temp_compensate_100, &press_compensate_100) == HAL_OK)
 	{
-		printf("\r\n raw temperature = %ld.%02ld degrés C, compensate temperature = %ld.%02ld degrés C, raw pressure = %lu.%02lu hPa, compensate pressure = %lu.%02lu hPa \r\n",
+		printf("\r\n raw temperature = %ld.%02ld degres C, compensate temperature = %ld.%02ld degres C, raw pressure = %lu.%02lu hPa, compensate pressure = %lu.%02lu hPa \r\n",
 				temp_raw_100 / 100, temp_raw_100 % 100,
 				temp_compensate_100 / 100, temp_compensate_100 % 100,
 				press_raw_100 / 100, press_raw_100 % 100,

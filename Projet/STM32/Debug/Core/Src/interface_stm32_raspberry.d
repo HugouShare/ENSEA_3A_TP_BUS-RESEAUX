@@ -30,7 +30,8 @@ Core/Src/interface_stm32_raspberry.o: \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr_ex.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h \
- ../Core/Inc/usart.h ../Core/Inc/usart.h
+ ../Core/Inc/usart.h ../Core/Inc/bmp280.h ../Core/Inc/i2c.h \
+ ../Core/Inc/usart.h
 ../Core/Inc/interface_stm32_raspberry.h:
 ../Core/Inc/main.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h:
@@ -63,4 +64,6 @@ Core/Src/interface_stm32_raspberry.o: \
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr_ex.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h:
 ../Core/Inc/usart.h:
+../Core/Inc/bmp280.h:
+../Core/Inc/i2c.h:
 ../Core/Inc/usart.h:

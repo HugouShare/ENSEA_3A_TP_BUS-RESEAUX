@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>STM32 – Interface Raspberry Pi</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background: #f5f5f5;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        button {
+            padding: 8px 12px;
+            margin: 5px;
+            cursor: pointer;
+        }
+        input {
+            padding: 6px;
+            width: 80px;
+        }
+        ul {
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        li {
+            margin: 4px 0;
+        }
+        .box {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<h1>📡 Interface STM32 – Raspberry Pi</h1>
+
+<div class="box">
+    <h2>Mesures</h2>
+    <button onclick="getTemperature()">Lire température</button>
+    <button onclick="getPressure()">Lire pression</button>
+</div>
+
+<div class="box">
+    <h2>Températures</h2>
+    <ul id="tempList"></ul>
+</div>
+
+<div class="box">
+    <h2>Pressions</h2>
+    <ul id="presList"></ul>
+</div>
+
+<div class="box">
+    <h2>Scale & Angle</h2>
+    <label>Scale :
+        <input type="number" step="0.1" id="scaleInput">
+    </label>
+    <button onclick="updateScale()">Mettre à jour</button>
+    <button onclick="getAngle()">Calculer angle</button>
+    <p id="angleResult"></p>
+</div>
+
+<script>
+async function getTemperature() {
+    await fetch('/temp/', { method: 'POST' });
+    loadTemperatures();
+}
+
+async function getPressure() {
+    await fetch('/pres/', { method: 'POST' });
+    loadPressures();
+}
+
+async function loadTemperatures() {
+    const res = await fetch('/temp/');
+    const data = await res.json();
+    const list = document.getElementById('tempList');
+    list.innerHTML = '';
+
+    data.forEach((v, i) => {
+        list.innerHTML += `
+            <li>
+                ${v}
+                <button onclick="deleteTemp(${i})">❌</button>
+            </li>`;
+    });
+}
+
+async function loadPressures() {
+    const res = await fetch('/pres/');
+    const data = await res.json();
+    const list = document.getElementById('presList');
+    list.innerHTML = '';
+
+    data.forEach((v, i) => {
+        list.innerHTML += `
+            <li>
+                ${v}
+                <button onclick="deletePres(${i})">❌</button>
+            </li>`;
+    });
+}
+
+async function deleteTemp(i) {
+    await fetch(`/temp/${i}`, { method: 'DELETE' });
+    loadTemperatures();
+}
+
+async function deletePres(i) {
+    await fetch(`/pres/${i}`, { method: 'DELETE' });
+    loadPressures();
+}
+
+async function updateScale() {
+    const value = document.getElementById('scaleInput').value;
+    await fetch('/scale/0', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ value: parseFloat(value) })
+    });
+}
+
+async function getAngle() {
+    const res = await fetch('/angle/');
+    const data = await res.json();
+    document.getElementById('angleResult').innerText =
+        `Température: ${data.temperature} | Scale: ${data.scale} | Angle: ${data.angle}`;
+}
+
+// Chargement initial
+loadTemperatures();
+loadPressures();
+</script>
+
+</body>
+</html>

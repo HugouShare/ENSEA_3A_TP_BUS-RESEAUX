@@ -48,9 +48,9 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-uint8_t rx_buf[RX_BUF_SIZE];
-uint8_t rx_pos = 0;
-uint8_t cmd_received = 0;
+uint8_t uart1_rx;
+char command[16];
+uint8_t cmd_index = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -115,6 +115,10 @@ int main(void)
 	bmp280_init();
 	bmp280_print_temperature_pressure();
 
+	// Interface STM32 - RPI
+	HAL_UART_Receive_IT(&huart1, &uart1_rx, 1);
+
+
 	/* USER CODE END 2 */
 
 	/* Infinite loop */
@@ -124,8 +128,6 @@ int main(void)
 		/* USER CODE END WHILE */
 
 		/* USER CODE BEGIN 3 */
-
-		//interface_stm32_raspberry_process_command();
 
 	}
 	/* USER CODE END 3 */
@@ -179,23 +181,7 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
-{
-	if (huart->Instance == USART1)   // UART vers Raspberry Pi
-	{
-		uint8_t c = rx_buf[rx_pos];
 
-		if (c == '\n' || c == '\r') {
-			rx_buf[rx_pos] = 0;
-			cmd_received = 1;
-			rx_pos = 0;
-		} else {
-			if (rx_pos < RX_BUF_SIZE-1) rx_pos++;
-		}
-
-		HAL_UART_Receive_IT(&huart1, &rx_buf[rx_pos], 1);
-	}
-}
 /* USER CODE END 4 */
 
 /**
