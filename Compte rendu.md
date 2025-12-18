@@ -873,47 +873,38 @@ Nous observons alors que le moteur fonctionne bel et bien comme désiré :
 
 Nous voulons maintenant que le moteur tourne de manière proportionnelle à la valeur de température qui lui est fournie.  
 
-Nous écrivons alors la fonction suivante `motor_commanded_by_T` dont le code est :  
+Nous écrivons alors la fonction suivante `motor_temperature_to_angle` dont le code est :  
 ```C
-void motor_commanded_by_T(int32_t temp_100)
+#define TEMP_MIN   (-20.0f) // °C
+#define TEMP_MAX   (80.0f)  // °C
+
+#define ANGLE_MIN  (-180)   // En °
+#define ANGLE_MAX  (180)    // En °
+
+void motor_temperature_to_angle(float temperature)
 {
-    static int32_t temp_init;
-    static uint8_t first_call = 1;
+    float angle;
 
-    int32_t deg;
+    /* Saturation température */
+    if (temperature < TEMP_MIN)
+        temperature = TEMP_MIN;
+    if (temperature > TEMP_MAX)
+        temperature = TEMP_MAX;
 
-    /* Initialisation au premier appel */
-    if (first_call)
-    {
-        temp_init = temp_100;
-        first_call = 0;
-    }
+    angle = (temperature - TEMP_MIN) *
+            (ANGLE_MAX - ANGLE_MIN) /
+            (TEMP_MAX - TEMP_MIN) +
+            ANGLE_MIN;
 
-	if (temp_100 > temp_init){
-		deg = (int32_t) (temp_100 - temp_init)*TEMP_MOT_COEFF;
-		deg = (deg > 180) ? 180 : deg;
-		deg = (deg < 0)   ? 0   : deg;
-		DRIVER_CAN_SendAngle(deg, POSITIVE);
-		HAL_Delay(1000);
-	}
-	else{
-		deg = (int32_t) (temp_init - temp_100)*TEMP_MOT_COEFF;
-		deg = (deg > 180) ? 180 : deg;
-		deg = (deg < 0)   ? 0   : deg;
-		DRIVER_CAN_SendAngle(deg, NEGATIVE);
-		HAL_Delay(1000);
-
-	}
+    motor_command_send(angle);
 }
 ```  
-
-Nous testerons son bon fonctionnement lors de l'étape d'intégration.  
 
 ## Intégration  
 
 Nous allons maintenant réaliser l'intégration de l'ensemble du travail fournit durant les séances de TP.  
 
-Nous commençons par créer une page HTML intitulée `interface_stm32_raspberry` afin de pouvoir réaliser des requêtes directment depuis cette page.  
+Nous commençons par créer une page HTML intitulée `interface_stm32_raspberry.html` afin de pouvoir réaliser des requêtes directment depuis cette page.  
 
 Nous ajoutons, en parallèle de cela, dans le fichier `hello.py` le morceau de code suivant :  
 ```PYTHON
