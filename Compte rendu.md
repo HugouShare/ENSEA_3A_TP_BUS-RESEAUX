@@ -299,11 +299,83 @@ Le protocole STM32-RPI fonctionne donc parfaitement !
 
 ### Commande depuis Python
 
-Nous avons installé python3-pip :  
-<img width="733" height="79" alt="image" src="https://github.com/user-attachments/assets/11dce93c-0de9-4ba3-aee9-41c916271788" />  
+Nous installons, via la commande suivante, pyserial afin de pouvoir communiquer en USART entre la Raspberry PI et la STM32 :  
+`pip3 install pyserial`  
 
-Nous avons bien installée la bibliothèque pyserial :  
+Nous avons bien installé la bibliothèque pyserial :  
 <img width="687" height="287" alt="image" src="https://github.com/user-attachments/assets/6627dfae-4acf-47bb-9488-4abc0b7b5374" />  
+
+Suite à cela, nous créons à l'emplacement suivant : `home/hugoarthur` le fichier suivant : `interface_stm32_raspberry.py`.  
+Dans ce fichier nous insérons alors le code suivant :  
+```PYTHON
+#!/usr/bin/env python3
+import serial
+import time
+import sys
+
+def open_serial(port="/dev/ttyAMA0", baudrate=115200):
+    try:
+        ser = serial.Serial(port, baudrate, timeout=1, write_timeout=1)
+        print(f"[OK] Port ouvert : {port} @ {baudrate} bauds")
+        return ser
+    except Exception as e:
+        print(f"[ERREUR] Impossible d'ouvrir le port série : {e}")
+        sys.exit(1)
+
+def send_command(ser, cmd):
+    ser.write((cmd + "\n").encode())
+    time.sleep(0.05)
+    response = ser.read_all().decode(errors="ignore")
+    print(f"→ Réponse à {cmd} : {response if response else '(aucune)'}")
+    return response
+
+def menu(ser):
+    while True:
+        print("""
+===========================
+   Communication STM32
+===========================
+1 - Obtenir température (GET_T)
+2 - Obtenir pression (GET_P)
+0 - Quitter
+""")
+        choix = input("Choix : ").strip()
+        if choix == "1":
+            send_command(ser, "GET_T")
+        elif choix == "2":
+            send_command(ser, "GET_P")
+        elif choix == "0":
+            print("Fermeture et sortie…")
+            return
+        else:
+            print("Choix invalide.")
+
+if __name__ == "__main__":
+    ser = open_serial("/dev/ttyS0", 115200)
+    try:
+        menu(ser)
+    finally:
+        ser.close()
+        print("[OK] Port série fermé.")
+```
+
+Suite à cela, nous testons alors le résultat en écrivant dans le shell :  
+`python3 interface_stm32_raspberry.py`  
+
+Nous obtenons alors :  
+<img width="798" height="256" alt="image" src="https://github.com/user-attachments/assets/a3cffca0-c799-4592-85e7-08f50ea8d502" />  
+
+En écrivant dans le shell :   
+`1`  
+Nous obtenons :  
+<img width="307" height="76" alt="image" src="https://github.com/user-attachments/assets/fc8f8b09-fcb4-4c4b-b463-42fdd41c13a3" />  
+
+Et en écrivant dans le shell :  
+`2`  
+Nous obtenons :  
+<img width="310" height="77" alt="image" src="https://github.com/user-attachments/assets/b7566df6-19e9-4441-af83-97d0632d183c" />
+
+Ainsi, notre communication via Python entre la Raspberry PI et la STM32 fonctionne bel et bien !  
 
 ## Interface REST  
 
