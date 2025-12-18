@@ -871,7 +871,43 @@ Nous observons alors que le moteur fonctionne bel et bien comme désiré :
 
 ### Interfaçage avec le capteur  
 
+Nous voulons maintenant que le moteur tourne de manière proportionnelle à la valeur de température qui lui est fournie.  
 
+Nous écrivons alors la fonction suivante `motor_commanded_by_T` dont le code est :  
+```C
+void motor_commanded_by_T(int32_t temp_100)
+{
+    static int32_t temp_init;
+    static uint8_t first_call = 1;
+
+    int32_t deg;
+
+    /* Initialisation au premier appel */
+    if (first_call)
+    {
+        temp_init = temp_100;
+        first_call = 0;
+    }
+
+	if (temp_100 > temp_init){
+		deg = (int32_t) (temp_100 - temp_init)*TEMP_MOT_COEFF;
+		deg = (deg > 180) ? 180 : deg;
+		deg = (deg < 0)   ? 0   : deg;
+		DRIVER_CAN_SendAngle(deg, POSITIVE);
+		HAL_Delay(1000);
+	}
+	else{
+		deg = (int32_t) (temp_init - temp_100)*TEMP_MOT_COEFF;
+		deg = (deg > 180) ? 180 : deg;
+		deg = (deg < 0)   ? 0   : deg;
+		DRIVER_CAN_SendAngle(deg, NEGATIVE);
+		HAL_Delay(1000);
+
+	}
+}
+```  
+
+Nous testerons son bon fonctionnement lors de l'étape d'intégration.  
 
 ## Intégration  
 
@@ -889,4 +925,6 @@ Nous ajoutons, en parallèle de cela, dans le fichier `hello.py` le morceau de c
 def index():
     return send_from_directory('.', 'interface_stm32_raspberry.html')
 ```
-C'est ce morceau de code qui va nous permettre d'accéder à la page web que nous avons depuis notre naviguateur personnel directment. 
+C'est ce morceau de code qui va nous permettre d'accéder à la page web que nous avons depuis notre naviguateur personnel directment.  
+
+Malgré de nombreux efforts faits, nous n'avons malheuresement pas réussi à aboutir avec l'étape d'intégration.  
