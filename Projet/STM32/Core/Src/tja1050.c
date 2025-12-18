@@ -8,6 +8,12 @@
 #include "tja1050.h"
 #include "can.h"
 
+#define TEMP_MIN   (-20.0f) // °C
+#define TEMP_MAX   (80.0f)  // °C
+
+#define ANGLE_MIN  (-180)   // En °
+#define ANGLE_MAX  (180)    // En °
+
 CAN_TxHeaderTypeDef tx_header =
 {
 		.StdId = 0x61,
@@ -33,35 +39,22 @@ void motor_command_send(int8_t angle_cmd)
     }
 }
 
-void motor_commanded_by_T(int32_t temp_100)
+void motor_temperature_to_angle(float temperature)
 {
-    static int32_t temp_init;
-    static uint8_t first_call = 1;
+    float angle;
 
-    int32_t deg;
+    /* Saturation température */
+    if (temperature < TEMP_MIN)
+        temperature = TEMP_MIN;
+    if (temperature > TEMP_MAX)
+        temperature = TEMP_MAX;
 
-    /* Initialisation au premier appel */
-    if (first_call)
-    {
-        temp_init = temp_100;
-        first_call = 0;
-    }
+    angle = (temperature - TEMP_MIN) *
+            (ANGLE_MAX - ANGLE_MIN) /
+            (TEMP_MAX - TEMP_MIN) +
+            ANGLE_MIN;
 
-	if (temp_100 > temp_init){
-		deg = (int32_t) (temp_100 - temp_init)*TEMP_MOT_COEFF;
-		deg = (deg > 180) ? 180 : deg;
-		deg = (deg < 0)   ? 0   : deg;
-		DRIVER_CAN_SendAngle(deg, POSITIVE);
-		HAL_Delay(1000);
-	}
-	else{
-		deg = (int32_t) (temp_init - temp_100)*TEMP_MOT_COEFF;
-		deg = (deg > 180) ? 180 : deg;
-		deg = (deg < 0)   ? 0   : deg;
-		DRIVER_CAN_SendAngle(deg, NEGATIVE);
-		HAL_Delay(1000);
-
-	}
+    motor_command_send(angle);
 }
 
 void motor_test_loop(void)
